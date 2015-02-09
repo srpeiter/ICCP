@@ -66,7 +66,7 @@ void Initialization()
  // this routine is done once, so we afford to use some for loops
 
 int i,j,k,n=0, boxlength=10;
-int stepsize = ceil(pow(N,1/3));
+int stepsize = ceil(pow(N,1/3))/3;	
 double gridsize= boxlength/stepsize;	// gridsize position where the particles
 					// should be placed;
 // making random number generator
