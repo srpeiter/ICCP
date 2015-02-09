@@ -15,7 +15,7 @@ using namespace std;
  */
 
 // Global position variable
-int N;  		// number of particles 
+int N ;  		// number of particles 
 const int dim =3; // read-only value
 double *pos[dim];	// position array x,y,z
 double *vel[dim];  // velocity array vx, vy, vz;
@@ -83,8 +83,8 @@ normal_distribution<double> maxwell(0,1);
 				return;
 			//position initialization
 			pos[0][n]=(3 * i + j + k) * gridsize;
-			pos[1][n]=(3 * j + h) * gridsize;
-			pos[2][n]=(3 * h) * gridsize;
+			pos[1][n]=(3 * j + k) * gridsize;
+			pos[2][n]=(3 * k) * gridsize;
 
 			// velocity initialization
 			vel[0][n]=maxwell(generator);
