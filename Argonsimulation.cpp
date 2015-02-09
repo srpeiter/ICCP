@@ -82,10 +82,10 @@ normal_distribution<double> maxwell(0,1);
 			{  if (n>N)
 				return;
 			//position initialization
-			pos[0][n]=(i-1)*gridsize;
-			pos[1][n]=(j-1)*gridsize;
-			pos[2][n]=(k-1)*gridsize;
-			
+			pos[0][n]=(3 * i + j + k) * gridsize;
+			pos[1][n]=(3 * j + h) * gridsize;
+			pos[2][n]=(3 * h) * gridsize;
+
 			// velocity initialization
 			vel[0][n]=maxwell(generator);
 			vel[1][n]=maxwell(generator);
@@ -108,6 +108,6 @@ int main(int argc, char* argv[])
  Initialization();
 
 
-
+cout<<"Whats up"<< endl;
 
 }
