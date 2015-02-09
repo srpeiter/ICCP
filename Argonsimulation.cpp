@@ -1,6 +1,7 @@
 #include<iostream>
 #include<math.h>
 #include<stdio.h>
+#include<random>
 
 using namespace std;
 
@@ -20,7 +21,13 @@ double *pos[dim];	// position array x,y,z
 double *vel[dim];  // velocity array vx, vy, vz;
 
 // function to determine the number of particles during runtime
-// and then to make the array pos and vel (allocate/reserve memory)
+// and then to make the array pos and vel (allocate/reserve memory);
+
+void Make_array();
+void Initialization();
+
+
+
 void Make_array(int argc, char* argv[] )
 {
 int i;
@@ -66,11 +73,11 @@ double gridsize= boxlength/stepsize;	// gridsize position where the particles
 // Using a normal distribution
 
 default_random_engine generator;
-normal_distriution<double> maxwell(0,1);
+normal_distribution<double> maxwell(0,1);
 
 	for (i = 1; i < stepsize; i++)
-		for(j=1;j < stepsize, j++)
-			for(k=1; k < stepsize,k++)
+		for(j=1;j < stepsize; j++)
+			for(k=1; k < stepsize;k++)
 
 			{  if (n>N)
 				return;
@@ -86,13 +93,21 @@ normal_distriution<double> maxwell(0,1);
 			
 			++n;
 			
-			}
+			
+		
+	}
+}
 
 
+// Step 2. We compute the forces between particles with the link list method
+//
+int main(int argc, char* argv[])
+{
 
+ Make_array(argc,argv);
+ Initialization();
 
 
 
 
 }
-

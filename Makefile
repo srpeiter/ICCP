@@ -1,2 +1,2 @@
 program:	
-	g++ -g Argonsimulation.cpp 
+	g++ -std=c++11 -g Argonsimulation.cpp 
