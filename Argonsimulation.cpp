@@ -1,6 +1,7 @@
 #include<iostream>
 #include<math.h>
 #include<stdio.h>
+#include<string.h>
 #include<random>
 
 using namespace std;
@@ -16,9 +17,20 @@ using namespace std;
 
 // Global position variable
 int N;  		// number of particles 
+int boxlength;
 const int dim =3; // read-only value
 double *pos[dim];	// position array x,y,z
 double *vel[dim];  // velocity array vx, vy, vz;
+
+
+
+const int cell_number=5;  // test: cellsize should be the cuttoff r_c of 
+		// LJ-potential, 
+// Cell and link matrices associated with force calculation: short range 
+// interactions
+
+int HEAD[cell_number][cell_number][cell_number];
+int *link_list;
 
 // function to determine the number of particles during runtime
 // and then to make the array pos and vel (allocate/reserve memory);
@@ -35,7 +47,9 @@ if (argc!=2) // two inputs , which are executable and number of particles N
 	printf("Error: Give the number of particles N");
 
 else {
-	N=atoi(argv[1]); // extract number from command line
+	boxlength=atoi(argv[1]); // extract number from command line
+        N=pow(boxlength,3);
+	link_list =new int[N];
 
 	//allocate memory: not fully dynamic, because rows are on stack thus 
 	//fixed and columns are on heap, which is dynamic; So partially
@@ -45,7 +59,7 @@ else {
 	vel[i]= new double[N];
 	
 	} 	
-if (pos == NULL | vel==NULL)
+if (pos == NULL | vel==NULL | link_list==NULL)
 printf("Error:Memory couldn't be allocated");
 }
 }
@@ -65,9 +79,10 @@ void Initialization()
  // 1 unit length from each other
  // this routine is done once, so we afford to use some for loops
 
-int i,j,k,n=0, boxlength=10;
-int stepsize = ceil(pow(N,1/3));
-double gridsize= boxlength/stepsize;	// gridsize position where the particles
+int i,j,k,n=0;
+
+int stepsize=boxlength;
+double gridsize= 0.5;	// gridsize position where the particles
 					// should be placed;
 // making random number generator
 // Using a normal distribution
@@ -75,39 +90,75 @@ double gridsize= boxlength/stepsize;	// gridsize position where the particles
 default_random_engine generator;
 normal_distribution<double> maxwell(0,1);
 
-	for (i = 1; i < stepsize; i++)
-		for(j=1;j < stepsize; j++)
-			for(k=1; k < stepsize;k++)
+	for (i = 0; i < stepsize; i++)
+		for(j=0;j < stepsize; j++)
+			for(k=0; k < stepsize;k++)
 
 			{  if (n>N)
 				return;
 			//position initialization
-			pos[0][n]=(i-1)*gridsize;
-			pos[1][n]=(j-1)*gridsize;
-			pos[2][n]=(k-1)*gridsize;
+			pos[0][n]=(i)*gridsize;
+			pos[1][n]=(j)*gridsize;
+			pos[2][n]=(k)*gridsize;
 			
-			// velocity initialization
+				// velocity initialization
 			vel[0][n]=maxwell(generator);
 			vel[1][n]=maxwell(generator);
 			vel[2][n]=maxwell(generator);
 			
 			++n;
-			
-			
-		
+	
 	}
 }
 
 
 // Step 2. We compute the forces between particles with the link list method
-//
+// this force computing step is most CPU-time consuming
+
+//function to make cell list and link
+
+
+void cell_link()
+{
+
+int cellx,celly, cellz;  // cell index in HEAD
+
+//initialize cell_matrix, thus positions of particles in 3D box
+memset(link_list,0,sizeof(link_list));
+memset(HEAD,0,sizeof(HEAD[0][0][0]*pow(cell_number,3)));
+
+ for (int i = 0; i < N; i++) 
+ {
+ cellx= floor(cell_number*pos[0][i]/(boxlength*0.5));
+ celly= floor(cell_number*pos[1][i]/(boxlength*0.5));
+ cellz= floor(cell_number*pos[2][i]/(boxlength*0.5));
+
+link_list[i]=HEAD[cellx][celly][cellz];
+cout << link_list[i]<< endl;
+HEAD[cellx][celly][cellz]=i;
+
+
+ }
+
+
+
+
+}
+
 int main(int argc, char* argv[])
 {
 
  Make_array(argc,argv);
  Initialization();
+for (int n=0; n < N ;n++)
+cout << pos[0][n] << " "<< pos[1][n]<< " "<< pos[2][n]<<endl;
+
+ cell_link();
 
 
-
-
+for (int i=0; i<3; i++)
+{delete [] pos[i];
+delete [] vel[i];
+}
+delete [] link_list;
 }
