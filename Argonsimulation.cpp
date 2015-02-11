@@ -109,7 +109,8 @@ void Initialization()
 double Temp=5, sf; // sf is scaling vactor;
 double v_sum[3] = {0,0,0};
 double v2_sum=0.0;
-int m=0,n=0,x,y,lx,ly;
+int m=0,n=0;
+	double x,y,lx,ly;
 
 int stepsize=boxlength;
 // making random number generator
@@ -213,7 +214,7 @@ int main(int argc, char* argv[])
  Make_array(argc,argv);
  Initialization();
 for (int n=0; n < N ;n++)
-cout << vel[0][n] << " "<< vel[1][n]<< " "<< vel[2][n]<<endl;
+cout << pos[0][n] << " "<< pos[1][n]<< " "<< pos[2][n]<<endl;
 
  cell_link();
 
