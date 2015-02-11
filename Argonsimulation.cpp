@@ -18,13 +18,15 @@ using namespace std;
 // Global position variable
 int N;  		// number of particles 
 int boxlength;
+double gridsize= 1;   		// gridsize position where the particles
+				// should be placed;
 const int dim =3; // read-only value
 double *pos[dim];	// position array x,y,z
 double *vel[dim];  // velocity array vx, vy, vz;
 
 
 
-const int cell_number=5;  // test: cellsize should be the cuttoff r_c of 
+const int cell_number=10;  // test: cellsize should be the cuttoff r_c of 
 		// LJ-potential, 
 // Cell and link matrices associated with force calculation: short range 
 // interactions
@@ -32,11 +34,18 @@ const int cell_number=5;  // test: cellsize should be the cuttoff r_c of
 int HEAD[cell_number][cell_number][cell_number];
 int *link_list;
 
+// random number generator for initial velocity determination
+default_random_engine generator;
+uniform_real_distribution<double> unif_dist(0.0,1.0);
+
 // function to determine the number of particles during runtime
 // and then to make the array pos and vel (allocate/reserve memory);
-
+//
 void Make_array();
+double box_muller_gauss();
 void Initialization();
+
+
 
 
 
@@ -64,6 +73,25 @@ printf("Error:Memory couldn't be allocated");
 }
 }
 
+//polar form of box-muller for generating Maxwell distribution
+// mean 0 and std 1;
+double  box_muller_gauss()
+{
+double ran_number, x1, x2, w;
+
+
+do {
+
+x1= 2* unif_dist(generator) -1;
+x2= 2* unif_dist(generator) -1;
+w = x1*x1 + x2*x2;
+} while (w >=1);
+
+return ran_number= x1* (sqrt((-2 * log(w))/w));
+
+}
+
+
 
 //Step 1: Initialization
 // This function takes Global variable: position and velocity array
@@ -78,38 +106,70 @@ void Initialization()
  // box has length of 10 and for example if N=1000, we put each particles
  // 1 unit length from each other
  // this routine is done once, so we afford to use some for loops
-
-int i,j,k,n=0;
+double Temp=5, sf; // sf is scaling vactor;
+double v_sum[3] = {0,0,0};
+double v2_sum=0.0;
+int m=0,n=0;
 
 int stepsize=boxlength;
-double gridsize= 0.5;	// gridsize position where the particles
-					// should be placed;
 // making random number generator
 // Using a normal distribution
 
-default_random_engine generator;
-normal_distribution<double> maxwell(0,1);
 
-	for (i = 0; i < stepsize; i++)
-		for(j=0;j < stepsize; j++)
-			for(k=0; k < stepsize;k++)
+
+	for (int i = 0; i < stepsize; i++)
+		for(int j=0;j < stepsize; j++)
+			for( int k=0; k < stepsize;k++)
 
 			{  if (n>N)
 				return;
-			//position initialization
+
+			
+			
+			 //position initialization
 			pos[0][n]=(i)*gridsize;
 			pos[1][n]=(j)*gridsize;
 			pos[2][n]=(k)*gridsize;
-			
-				// velocity initialization
-			vel[0][n]=maxwell(generator);
-			vel[1][n]=maxwell(generator);
-			vel[2][n]=maxwell(generator);
-			
 			++n;
-	
-	}
+			}
+
+	// velocity Initialization
+			for ( m=0; m < N ;++m){
+			vel[0][m]=box_muller_gauss();
+			vel[1][m]=box_muller_gauss();
+			vel[2][m]=box_muller_gauss();
+			v_sum[0]+= vel[0][m];
+			v_sum[1]+= vel[1][m];
+			v_sum[2]+= vel[2][m];
+	v2_sum += pow(vel[0][m],2)+ pow(vel[1][m],2)+ pow(vel[2][m],2);
+			}
+
+			v_sum[0]=v_sum[0]/N;
+			v_sum[1]=v_sum[1]/N;
+			v_sum[2]=v_sum[2]/N;
+			v2_sum= v2_sum/N;       // rescaling velocity
+			sf= sqrt(3*Temp/v2_sum) ;// rescaling factor
+
+		m=0;
+	        v2_sum=0.0;
+
+		for (m = 0; m < N; m++) {
+		vel[0][m]=(vel[0][m]-v_sum[0])*sf;
+		vel[1][m]=(vel[1][m]-v_sum[1])*sf;
+		vel[2][m]=(vel[2][m]-v_sum[2])*sf;
+	v2_sum += pow(vel[0][m],2)+ pow(vel[1][m],2)+ pow(vel[2][m],2);
+
+		} 
+
+		cout << "v_mean"<< " "<< v2_sum<< endl;
+		// random number generator for initial velocity determination
+
+
+
 }
+
+
+
 
 
 // Step 2. We compute the forces between particles with the link list method
@@ -129,19 +189,15 @@ memset(HEAD,0,sizeof(HEAD[0][0][0]*pow(cell_number,3)));
 
  for (int i = 0; i < N; i++) 
  {
- cellx= floor(cell_number*pos[0][i]/(boxlength*0.5));
- celly= floor(cell_number*pos[1][i]/(boxlength*0.5));
- cellz= floor(cell_number*pos[2][i]/(boxlength*0.5));
+ cellx= floor(cell_number*pos[0][i]/(boxlength*gridsize));
+ celly= floor(cell_number*pos[1][i]/(boxlength*gridsize));
+ cellz= floor(cell_number*pos[2][i]/(boxlength*gridsize));
 
 link_list[i]=HEAD[cellx][celly][cellz];
 cout << link_list[i]<< endl;
 HEAD[cellx][celly][cellz]=i;
 
-
  }
-
-
-
 
 }
 
@@ -151,7 +207,7 @@ int main(int argc, char* argv[])
  Make_array(argc,argv);
  Initialization();
 for (int n=0; n < N ;n++)
-cout << pos[0][n] << " "<< pos[1][n]<< " "<< pos[2][n]<<endl;
+cout << vel[0][n] << " "<< vel[1][n]<< " "<< vel[2][n]<<endl;
 
  cell_link();
 
