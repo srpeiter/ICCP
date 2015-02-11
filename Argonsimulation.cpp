@@ -110,10 +110,7 @@ double Temp=5, sf; // sf is scaling vactor;
 double v_sum[3] = {0,0,0};
 double v2_sum=0.0;
 int m=0,n=0;
-<<<<<<< HEAD
-=======
 	double x,y,lx,ly;
->>>>>>> semigod
 
 int stepsize=boxlength;
 // making random number generator
@@ -131,10 +128,6 @@ int stepsize=boxlength;
 			
 			
 			 //position initialization
-<<<<<<< HEAD
-			pos[0][n]=(i)*gridsize;
-			pos[1][n]=(j)*gridsize;
-=======
 			x = (3*i + j + k)/3;	//x position 
 			y = (3*j + k)/3;	//y position
 						//z = k
@@ -143,7 +136,6 @@ int stepsize=boxlength;
 			ly = stepsize * floor(y/stepsize);
 			pos[0][n]=(x-lx)*gridsize;
 			pos[1][n]=(y-ly)*gridsize;
->>>>>>> semigod
 			pos[2][n]=(k)*gridsize;
 			++n;
 			}
@@ -222,11 +214,7 @@ int main(int argc, char* argv[])
  Make_array(argc,argv);
  Initialization();
 for (int n=0; n < N ;n++)
-<<<<<<< HEAD
-cout << vel[0][n] << " "<< vel[1][n]<< " "<< vel[2][n]<<endl;
-=======
 cout << pos[0][n] << " "<< pos[1][n]<< " "<< pos[2][n]<<endl;
->>>>>>> semigod
 
  cell_link();
 
