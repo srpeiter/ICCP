@@ -233,28 +233,20 @@ void brute_force_calculate(){
 int n,m;
 double dist[3],radius;
 
-for (n = 0; n < N; ++n)
-{
-
-for (m=0; m < N; ++m)
-{
-
+for (n = 0; n < N; ++n){
+for (m=0; m < N; ++m){
+if (n != m){
 // Distance (radius) between particle n and all the other particles m 
 for (int d=0; d < dim; ++d)
 {
 dist[d] = pos[d][m]-pos[d][n]; 
-radius += pow(dist[d],2);
 }
-
+radius = pow(dist[0],2) + pow(dist[1],2) + pow(dist[2],2);
 // Calculate the foce according to the lenaard jones Potential
 for (int d=0; d < dim; ++d)
 {
 Force[d][n] += (-24* (dist[d])*(2*pow(radius,-7)+ pow(radius,-4)));
-}
-
-}
-}
-}
+} } } } }
 
 void force_calculate()
 {
@@ -380,11 +372,11 @@ int main(int argc, char* argv[])
  Make_array(argc,argv);
  Initialization();
  setup_cell_link();
-//brute_force_calculate();
-force_calculate();
+brute_force_calculate();
+//force_calculate();
 for (int n=0; n < N ;n++)
-cout << pos[0][n] << " "<< pos[1][n]<< " "<< pos[2][n]<<endl;
-//cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
+//cout << pos[0][n] << " "<< pos[1][n]<< " "<< pos[2][n]<<endl;
+cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
 
 
 for (int i=0; i<3; i++)
