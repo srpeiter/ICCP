@@ -21,6 +21,8 @@ int N;  		// number of particles
 int boxlength;
 double gridsize= 1;   		// gridsize position where the particles
 				// should be placed;
+int Run = 10;			// Number of runs
+float dt = 0.01;		// Discrete time unit
 const int dim =3; // read-only value
 double *pos[dim];	// position array x,y,z
 double *vel[dim];  // velocity array vx, vy, vz;
@@ -49,7 +51,7 @@ void Initialization();
 void setup_cell_link();
 void force_calculate();
 void brute_force_calculate();
-
+void Update_velocity();
 
 
 
@@ -225,28 +227,7 @@ HEAD[cellx][celly][cellz]=i;
 // When Cell_link mastrices are set up, we now calculate the force
 // on each particles
 
-void brute_force_calculate(){
-/* This file uses brute force (without optimalization) to calculate the  force between particles. This will be used to test the more optimal force calculation for their accuracy.
-*/
 
-
-int n,m;
-double dist[3],radius;
-
-for (n = 0; n < N; ++n){
-for (m=0; m < N; ++m){
-if (n != m){
-// Distance (radius) between particle n and all the other particles m 
-for (int d=0; d < dim; ++d)
-{
-dist[d] = pos[d][m]-pos[d][n]; 
-}
-radius = pow(dist[0],2) + pow(dist[1],2) + pow(dist[2],2);
-// Calculate the foce according to the lenaard jones Potential
-for (int d=0; d < dim; ++d)
-{
-Force[d][n] += (-24* (dist[d])*(2*pow(radius,-7)+ pow(radius,-4)));
-} } } } }
 
 void force_calculate()
 {
@@ -362,21 +343,76 @@ id= link_list[id];
 }
 }
 
+void brute_force_calculate(){
+/* This file uses brute force (without optimalization) to calculate the  force between particles. This will be used to test the more optimal force calculation for their accuracy.
+*/
+int n,m;
+double dist[3],radius;
+
+for (n = 0; n < N; ++n){
+for (int d=0; d < dim; ++d)
+Force[d][n] = 0;	// Reset the force
+
+for (m=0; m < N; ++m){
+// Skip if the loop is dealing with the same particle
+if (n != m){
+
+// Distance between particle n and all other partles m
+for (int d=0; d < dim; ++d)
+{
+dist[d] = pos[d][m]-pos[d][n]; 
+}
+
+// Calculate the distance (squared) between two particles
+radius = pow(dist[0],2) + pow(dist[1],2) + pow(dist[2],2);
+
+// Calculate the force according to the lennard jones Potential
+for (int d=0; d < dim; ++d)
+{
+Force[d][n] += (-24* (dist[d])*(2*pow(radius,-7)+ pow(radius,-4)));
+} 
+
+} } } }
 
 // Step 3. Update position and velocity 
 //
 
+void Update_velocity(){
+int i,n;
+for (n = 0; n < N; ++n){
+for (i = 0; i < dim; ++i) {
+vel[i][n] = vel[i][n] + Force[i][n] * dt;
+} } 
+}
+
+
 int main(int argc, char* argv[])
 {
+int i;
 
+
+// Initiate simulation
  Make_array(argc,argv);
  Initialization();
- setup_cell_link();
-brute_force_calculate();
+
+// Run simulation
+for (i = 0; i < Run ; i++){
+//setup_cell_link();
 //force_calculate();
-for (int n=0; n < N ;n++)
+brute_force_calculate();
+ Update_velocity();
+
+cout << vel[0][2] << " " << vel[1][2] << " " << vel[2][2] << endl;
+}
+
+
+
+
+
+// Debugging tools:
+//for (int n=0; n < N ;n++)
 //cout << pos[0][n] << " "<< pos[1][n]<< " "<< pos[2][n]<<endl;
-cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
+//cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
 
 
 for (int i=0; i<3; i++)
