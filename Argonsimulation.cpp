@@ -21,7 +21,7 @@ int N;  		// number of particles
 int boxlength;
 double gridsize= 1;   		// gridsize position where the particles
 				// should be placed;
-int Run = 10;			// Number of runs
+int Run = 1000;			// Number of runs
 float dt = 0.01;		// Discrete time unit
 const int dim =3; // read-only value
 double *pos[dim];	// position array x,y,z
@@ -52,7 +52,7 @@ void setup_cell_link();
 void force_calculate();
 void brute_force_calculate();
 void Update_velocity();
-
+void Update_position();
 
 
 void Make_array(int argc, char* argv[] )
@@ -327,11 +327,8 @@ radius= pow(dist[0],2) +  pow(dist[1],2) + pow(dist[2],2) ;
 
 // now calculate force through lennard jones Potential
 for (int d=0; d < dim; ++d)
-{
-
 Force[d][m] += (-24* (dist[d])*(2*pow(radius,-7)+ pow(radius,-4)));
 
-}
 
 
 id= link_list[id];
@@ -377,14 +374,23 @@ Force[d][n] += (-24* (dist[d])*(2*pow(radius,-7)+ pow(radius,-4)));
 // Step 3. Update position and velocity 
 //
 
+// Update the velocity
 void Update_velocity(){
 int i,n;
 for (n = 0; n < N; ++n){
 for (i = 0; i < dim; ++i) {
-vel[i][n] = vel[i][n] + Force[i][n] * dt;
+vel[i][n] = vel[i][n] + Force[i][n] * dt; // Every time dt, the particle gets an 						  // increase in velocity[x,y,z]:force * dt
 } } 
 }
 
+// Update position
+void Update_position(){
+int i,n;
+for (n = 0; n < N; ++n){
+for (i = 0; i < dim; ++i) {
+pos[i][n] = pos[i][n] + vel[i][n] *dt;
+}}
+}
 
 int main(int argc, char* argv[])
 {
@@ -394,15 +400,23 @@ int i;
 // Initiate simulation
  Make_array(argc,argv);
  Initialization();
+setup_cell_link();
 
-// Run simulation
+/* Run simulation
+The order is important!
+The force is dependend on the position, the velocity is dependend on the force and the position is dependend on the velocity.
+So: First calculate the force according to the old positions. followed by the update of the position and velocity after that. 
+Note: I'm not sure if the previous force or the new force should be used to update teh velocity.
+*/
+
 for (i = 0; i < Run ; i++){
-//setup_cell_link();
 //force_calculate();
 brute_force_calculate();
- Update_velocity();
+Update_position();	
+Update_velocity(); 
 
-cout << vel[0][2] << " " << vel[1][2] << " " << vel[2][2] << endl;
+
+cout << pos[0][2] << " " << pos[1][2] << " " << pos[2][2] << endl;
 }
 
 
