@@ -23,11 +23,12 @@ double gridsize= 1;   		// gridsize position where the particles
 const int dim =3; // read-only value
 double *pos[dim];	// position array x,y,z
 double *vel[dim];  // velocity array vx, vy, vz;
+double *Force[dim];
 
 
 
-const int cell_number=10;  // test: cellsize should be the cuttoff r_c of 
-		// LJ-potential, 
+const int cell_number=5;  // test: cellsize should be the cuttoff r_c of 
+// LJ-potential, It's important since it eases our computation
 // Cell and link matrices associated with force calculation: short range 
 // interactions
 
@@ -44,6 +45,8 @@ uniform_real_distribution<double> unif_dist(0.0,1.0);
 void Make_array();
 double box_muller_gauss();
 void Initialization();
+void setup_cell_link();
+void force_calculate();
 
 
 
@@ -56,7 +59,7 @@ if (argc!=2) // two inputs , which are executable and number of particles N
 	printf("Error: Give the number of particles N");
 
 else {
-	boxlength=atoi(argv[1]); // extract number from command line
+	boxlength=atoi(argv[1]); // extract number from command line, box                                      // starting from 0
         N=pow(boxlength,3);
 	link_list =new int[N];
 
@@ -64,13 +67,22 @@ else {
 	//fixed and columns are on heap, which is dynamic; So partially
 	//dynamic
 	for (i = 0; i< dim; i++){
-	pos[i]= new double[N];
-	vel[i]= new double[N];
-	
-	} 	
-if (pos == NULL | vel==NULL | link_list==NULL)
+	pos[i]= new double[N] (); 
+	vel[i]= new double[N] (); 
+	Force[i]= new double[N] ();
+	} 
+}	
+ 
+if (pos == NULL | vel==NULL | link_list==NULL | Force==NULL)
 printf("Error:Memory couldn't be allocated");
-}
+
+
+//memset(pos,0,N*3*sizeof(pos[0][0]));
+//memset(vel,0,N*3*sizeof(vel[0][0]));
+//memset(Force,0,N*3*sizeof(Force[0][0]));
+memset(link_list,0,sizeof(link_list));
+
+
 }
 
 //polar form of box-muller for generating Maxwell distribution
@@ -110,7 +122,7 @@ double Temp=5, sf; // sf is scaling vactor;
 double v_sum[3] = {0,0,0};
 double v2_sum=0.0;
 int m=0,n=0;
-	double x,y,lx,ly;
+double x,y,lx,ly; //fcc making variable
 
 int stepsize=boxlength;
 // making random number generator
@@ -125,7 +137,7 @@ int stepsize=boxlength;
 			{  if (n>N)
 				return;
 
-			
+		// making fcc lattice	
 			
 			 //position initialization
 			x = (3*i + j + k)/3;	//x position 
@@ -168,7 +180,7 @@ int stepsize=boxlength;
 
 		} 
 
-		cout << "v_mean"<< " "<< v2_sum<< endl;
+		//cout << "v_mean"<< " "<< v2_sum<< endl;
 		// random number generator for initial velocity determination
 
 
@@ -185,43 +197,166 @@ int stepsize=boxlength;
 //function to make cell list and link
 
 
-void cell_link()
+void setup_cell_link()
 {
 
 int cellx,celly, cellz;  // cell index in HEAD
 
 //initialize cell_matrix, thus positions of particles in 3D box
-memset(link_list,0,sizeof(link_list));
+
 memset(HEAD,0,sizeof(HEAD[0][0][0]*pow(cell_number,3)));
 
- for (int i = 0; i < N; i++) 
+ for (int i = 0; i < N; ++i) 
  {
  cellx= floor(cell_number*pos[0][i]/(boxlength*gridsize));
  celly= floor(cell_number*pos[1][i]/(boxlength*gridsize));
  cellz= floor(cell_number*pos[2][i]/(boxlength*gridsize));
 
 link_list[i]=HEAD[cellx][celly][cellz];
-cout << link_list[i]<< endl;
+//cout << link_list[i]<< endl;
 HEAD[cellx][celly][cellz]=i;
 
- }
+}
+}
+
+
+
+// When Cell_link mastrices are set up, we now calculate the force
+// on each particles
+
+void force_calculate()
+{
+
+/* we start by locating the paricles in the box
+ * and then look for other particles in that box and
+ * particles in the neighbouring box (27 neighbours to be correct)
+ * and calcute the force based on the lennard and jones Potential
+ */
+
+// first locate particles in box.
+int cellx,celly,cellz;
+// array to store if the is the period whether the periodicity of hte Boundary
+double postemp[3];
+double dist[3], radius;
+
+int ii, jj,kk, id;
+
+for (int m=0 ; m < N; ++m)
+{// cout << "m "<< m<< endl;
+ cellx= floor(cell_number*pos[0][m]/((boxlength)*gridsize));
+ celly= floor(cell_number*pos[1][m]/((boxlength)*gridsize));
+ cellz= floor(cell_number*pos[2][m]/((boxlength)*gridsize));
+  
+
+  for(int i=cellx-1; i <= cellx+1 ; i++)
+	for(int j=celly-1; j <=celly+1 ;j++)
+		for(int k=cellz-1; k <= cellz+1; k++)
+		{
+		int periodic[3]={0,0,0};
+               
+		// identify edges left/right and up/Down
+		// periodic : 0 is no boundary, 1 is lower boundary and 2 
+		// is upper Boundary
+		ii=i;// cout <<"ii "<<ii<<endl;
+		jj=j;// cout <<"jj "<<jj<<endl;
+
+		kk=k; //cout <<"kk "<<kk<<endl;
+
+		if(ii < 0)
+		{
+		periodic[0]=1;
+		ii+= cell_number;
+		}
+		else if(ii>cell_number-1)
+		{
+		periodic[0]=2;
+		ii-=cell_number;
+		}
+		
+		if(jj < 0)
+		{
+		periodic[1]=1;
+		jj+= cell_number;
+		}
+		else if(jj>cell_number-1)
+		{
+		periodic[1]=2;
+		jj-=cell_number;
+		}
+		
+		if(kk < 0)
+		{
+		periodic[2]=1;
+		kk+= cell_number;
+		}
+		else if(kk>cell_number-1)
+		{
+		periodic[2]=2;
+		kk-=cell_number;
+		}
+	
+// now locate particle in box;
+
+id = HEAD[ii][jj][kk];
+
+// search for all particles in box;
+do {
+
+if (id == m)
+id = link_list[id]; // skip if it is the same particles
+
+// calculate distance based on where they are located in box ex. boundaries,
+// middle
+for (int d=0; d < dim; ++d)
+{
+if (periodic[d]==0)
+	postemp[d]=pos[d][id];
+else if (periodic[d]==1)
+	postemp[d]=pos[d][id] +(boxlength-1) ;
+else if (periodic[d]==2)
+	postemp[d]=pos[d][id] - (boxlength-1);
+dist[d]=pos[d][m]-postemp[d];
+}
+// calculate distance
+radius= pow(dist[0],2) +  pow(dist[1],2) + pow(dist[2],2) ;
+
+// now calculate force through lennard jones Potential
+for (int d=0; d < dim; ++d)
+{
+
+Force[d][m] += (-24* (dist[d])*(2*pow(radius,-7)+ pow(radius,-4)));
 
 }
+
+
+id= link_list[id];
+//cout << "id "<< id << endl;
+} while (id !=0);// go till the end of the link_list	
+
+}	
+ 
+}
+}
+
+
+// Step 3. Update position and velocity 
+//
 
 int main(int argc, char* argv[])
 {
 
  Make_array(argc,argv);
  Initialization();
+ setup_cell_link();
+force_calculate();
 for (int n=0; n < N ;n++)
-cout << pos[0][n] << " "<< pos[1][n]<< " "<< pos[2][n]<<endl;
-
- cell_link();
+cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
 
 
 for (int i=0; i<3; i++)
 {delete [] pos[i];
 delete [] vel[i];
+delete [] Force[i];
 }
 delete [] link_list;
 }
