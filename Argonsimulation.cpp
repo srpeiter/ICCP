@@ -24,7 +24,10 @@ const int dim =3; // read-only value
 double *pos[dim];	// position array x,y,z
 double *vel[dim];  // velocity array vx, vy, vz;
 double *Force[dim];
+double *Force_previous[3];
 
+
+double time_step=0.01;
 
 
 const int cell_number=5;  // test: cellsize should be the cuttoff r_c of 
@@ -42,11 +45,17 @@ uniform_real_distribution<double> unif_dist(0.0,1.0);
 // function to determine the number of particles during runtime
 // and then to make the array pos and vel (allocate/reserve memory);
 //
-void Make_array();
+void  Make_array(int argc, char* argv[] );
 double box_muller_gauss();
 void Initialization();
 void setup_cell_link();
 void force_calculate();
+void simulate_process();
+void pos_update();
+void vel_update();
+void force_reset();
+void cp_prev_Force();
+void Clean_up();
 
 
 
@@ -61,7 +70,7 @@ if (argc!=2) // two inputs , which are executable and number of particles N
 else {
 	boxlength=atoi(argv[1]); // extract number from command line, box                                      // starting from 0
         N=pow(boxlength,3);
-	link_list =new int[N];
+	link_list =new int[N] ();
 
 	//allocate memory: not fully dynamic, because rows are on stack thus 
 	//fixed and columns are on heap, which is dynamic; So partially
@@ -70,6 +79,8 @@ else {
 	pos[i]= new double[N] (); 
 	vel[i]= new double[N] (); 
 	Force[i]= new double[N] ();
+	Force_previous[i]= new double[N] ();
+	
 	} 
 }	
  
@@ -77,10 +88,8 @@ if (pos == NULL | vel==NULL | link_list==NULL | Force==NULL)
 printf("Error:Memory couldn't be allocated");
 
 
-//memset(pos,0,N*3*sizeof(pos[0][0]));
-//memset(vel,0,N*3*sizeof(vel[0][0]));
-//memset(Force,0,N*3*sizeof(Force[0][0]));
-memset(link_list,0,sizeof(link_list));
+
+
 
 
 }
@@ -113,6 +122,9 @@ return ran_number= x1* (sqrt((-2 * log(w))/w));
 // number of particles N.
 void Initialization()
 {
+
+
+
  // Particles initial positions are chosen such, that there aren't any overlap
  // So place the particles on a cubic lattice.
  // box has length of 10 and for example if N=1000, we put each particles
@@ -204,14 +216,14 @@ int cellx,celly, cellz;  // cell index in HEAD
 
 //initialize cell_matrix, thus positions of particles in 3D box
 
-memset(HEAD,0,sizeof(HEAD[0][0][0]*pow(cell_number,3)));
+memset(HEAD,0,sizeof(HEAD)); // Note HEAD is knwon before compile time 
 
- for (int i = 0; i < N; ++i) 
+ for (int i = 0; i < N; i++) 
  {
  cellx= floor(cell_number*pos[0][i]/(boxlength*gridsize));
  celly= floor(cell_number*pos[1][i]/(boxlength*gridsize));
  cellz= floor(cell_number*pos[2][i]/(boxlength*gridsize));
-
+//cout <<"cellx "<< cellx << "celly "<< celly << "cellz "<< cellz <<endl;
 link_list[i]=HEAD[cellx][celly][cellz];
 //cout << link_list[i]<< endl;
 HEAD[cellx][celly][cellz]=i;
@@ -233,6 +245,7 @@ void force_calculate()
  * and calcute the force based on the lennard and jones Potential
  */
 
+
 // first locate particles in box.
 int cellx,celly,cellz;
 // array to store if the is the period whether the periodicity of hte Boundary
@@ -242,7 +255,7 @@ double dist[3], radius;
 int ii, jj,kk, id;
 
 for (int m=0 ; m < N; ++m)
-{// cout << "m "<< m<< endl;
+{cout << "m "<< m<< endl;
  cellx= floor(cell_number*pos[0][m]/((boxlength)*gridsize));
  celly= floor(cell_number*pos[1][m]/((boxlength)*gridsize));
  cellz= floor(cell_number*pos[2][m]/((boxlength)*gridsize));
@@ -319,7 +332,7 @@ dist[d]=pos[d][m]-postemp[d];
 }
 // calculate distance
 radius= pow(dist[0],2) +  pow(dist[1],2) + pow(dist[2],2) ;
-
+if (radius==0) goto next;
 // now calculate force through lennard jones Potential
 for (int d=0; d < dim; ++d)
 {
@@ -329,34 +342,149 @@ Force[d][m] += (-24* (dist[d])*(2*pow(radius,-7)+ pow(radius,-4)));
 }
 
 
-id= link_list[id];
+next: id= link_list[id];
 //cout << "id "<< id << endl;
 } while (id !=0);// go till the end of the link_list	
 
 }	
  
 }
+
+
+
+ 
 }
 
 
 // Step 3. Update position and velocity 
 //
-
-int main(int argc, char* argv[])
+void vel_update()
 {
+for (int m=0; m < N; m++){
+vel[0][m]= vel[0][m] + time_step*(Force[0][m]-Force_previous[0][m])*0.5;
 
- Make_array(argc,argv);
- Initialization();
- setup_cell_link();
-force_calculate();
+vel[1][m]= vel[1][m] + time_step*(Force[1][m]-Force_previous[1][m])*0.5;
+
+vel[2][m]= vel[2][m] + time_step*(Force[2][m]-Force_previous[2][m])*0.5;
+
+}
+
+}
+
+void pos_update()
+{
+	for (int m=0; m < N; m++){
+pos[0][m]=pos[0][m] + time_step*vel[0][m] + pow(time_step,2)*(0.5*Force[0][m]);
+
+if (pos[0][m] > boxlength -1)
+	pos[0][m]= pos[0][m]- (boxlength -1);
+else if (pos[0][m] < 0)
+	pos[0][m]= pos[0][m] +(boxlength-1);
+
+pos[1][m]=pos[1][m] + time_step*vel[1][m] + pow(time_step,2)*(0.5*Force[1][m]);
+if (pos[1][m] > boxlength -1)
+	pos[1][m]= pos[1][m]- (boxlength -1);
+else if (pos[1][m] < 0)
+	pos[1][m]= pos[1][m] +(boxlength-1);
+
+pos[2][m]=pos[2][m] + time_step*vel[2][m] + pow(time_step,2)*(0.5*Force[2][m]);
+if (pos[2][m] > boxlength -1)
+	pos[2][m]= pos[2][m]- (boxlength -1);
+else if (pos[2][m] < 0)
+	pos[2][m]= pos[2][m] +(boxlength-1);
+
+	}
+}
+
+
+void force_reset()
+{
+for (int j=0; j < dim; j++)
+memset(Force[j],0,sizeof(Force[j])*N);
+}
+
+void cp_prev_Force()
+{
+for (int j=0 ; j<dim; j++)
+memcpy(Force_previous[j],Force[j],N*sizeof(Force[j]));
+
+}
+
+
+
+void simulate_process()
+{
+// I used verlet integration method to calculate velocity and position
+// I took it form http://www.pa.msu.edu/~duxbury/courses/phy480/mdlecture1.pdf
+
+setup_cell_link();// setup link-cell construction
+
+force_calculate(); // calculate the force for position update
+
+cp_prev_Force();
+
+pos_update(); // update the position
+
+setup_cell_link(); // again make a new cell link construction
+
+force_reset(); // reset all the foreces
+
+force_calculate(); //  caculate the forces;
+
+vel_update(); // update the velocity
 for (int n=0; n < N ;n++)
-cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
+{
+	 cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
+         cout << vel[0][n] << " "<< vel[1][n]<< " "<< vel[2][n]<<endl;
+}
+
+
+force_reset(); // reset forces again : this is very inefficient, so optimize
+	       // it.
+
+}
+
+
+void Clean_up()
+{
 
 
 for (int i=0; i<3; i++)
 {delete [] pos[i];
 delete [] vel[i];
 delete [] Force[i];
+delete [] Force_previous[i]; 
 }
 delete [] link_list;
+
+}
+
+
+
+
+int main(int argc, char* argv[])
+{
+
+ Make_array(argc,argv);
+ 
+ Initialization();
+
+setup_cell_link();// setup link-cell construction
+
+force_calculate(); // calculate the force for position update
+
+for (int n=0; n < N ;n++)
+{
+	 cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
+         cout << vel[0][n] << " "<< vel[1][n]<< " "<< vel[2][n]<<endl;
+}
+
+
+// for (int j=1; j < 4; j++) 
+ //simulate_process();
+
+ Clean_up();
+
+
+ return 0;
 }
