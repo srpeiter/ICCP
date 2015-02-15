@@ -22,13 +22,16 @@ int boxlength;
 double gridsize= 1;   		// gridsize position where the particles
 				// should be placed;
 int Run = 10;		// Number of runs
-float dt = 0.01;		// Discrete time unit
+double dt = 0.01;		// Discrete time unit
 const int dim =3; // read-only value
 double *pos[dim];	// position array x,y,z
-double *old_pos[dim];
+double *old_pos[dim];	// save the previous positions
 double *vel[dim];  // velocity array vx, vy, vz;
 double *Force[dim];
-
+int sigma12 = 1;		//These values are used in the lenard jones
+				//potential,
+int sigma6 = 1;
+int m =	1;			//mass of the particle
 
 
 const int cell_number=5;  // test: cellsize should be the cuttoff r_c of 
@@ -51,12 +54,13 @@ double box_muller_gauss();
 void Initialization();
 void setup_cell_link();
 void force_calculate();
-void brute_force_calculate();
+void Update_force_brute();
 void Update_velocity();
 void Update_position();
 void Calculate_Energy();
 void Calculate_Individual_Kinetic_Energies();
 void Calculate_Individual_Potential_Energies();
+void Copy_position();
 
 void Make_array(int argc, char* argv[] )
 {
@@ -331,7 +335,7 @@ radius= pow(dist[0],2) +  pow(dist[1],2) + pow(dist[2],2) ;
 
 // now calculate force through lennard jones Potential
 for (int d=0; d < dim; ++d)
-Force[d][m] += (-24* (dist[d])*(2*pow(radius,-7)+ pow(radius,-4)));
+Force[d][m] += (-32* (dist[d])*(2*pow(radius,-7)+ pow(radius,-4)));
 
 
 
@@ -344,35 +348,27 @@ id= link_list[id];
 }
 }
 
-void brute_force_calculate(){
-/* This file uses brute force (without optimalization) to calculate the  force between particles. This will be used to test the more optimal force calculation for their accuracy.
-*/
+// ------ Update the force (Brute) ------ \\
+This file uses brute force (without optimalization) to calculate the  force between particles. This will be used to test the more optimal force calculation for their accuracy.
+
+void Update_force_brute(){
 int n,m;
 double dist[3],radius;
-
 for (n = 0; n < N; ++n){
 for (int d=0; d < dim; ++d)
-Force[d][n] = 0;	// Reset the force
-
+// Reset the force
+Force[d][n] = 0;	
 for (m=0; m < N; ++m){
 // Skip if the loop is dealing with the same particle
 if (n != m){
-
 // Distance between particle n and all other partles m
 for (int d=0; d < dim; ++d)
-{
-dist[d] = pos[d][m]-pos[d][n]; 
-}
-
+dist[d] = old_pos[d][n]-old_pos[d][m]; 
 // Calculate the distance (squared) between two particles
-radius = pow(pow(dist[0],2) + pow(dist[1],2) + pow(dist[2],2),3);
-
+radius = pow(dist[0],2) + pow(dist[1],2) + pow(dist[2],2);
 // Calculate the force according to the lennard jones Potential
 for (int d=0; d < dim; ++d)
-{
-Force[d][n] += 6 * (2*pow(radius,-2) - pow(radius,-1))*dist[d];
-} 
-
+Force[d][n] += 24 * m * (2*pow(radius,-7) - pow(radius,-4))*dist[d];
 } } } }
 
 // Step 3. Update position and velocity 
@@ -384,7 +380,8 @@ void Update_velocity(){
 int i,n;
 for (n = 0; n < N; ++n){
 for (i = 0; i < dim; ++i) {
-vel[i][n] = vel[i][n] - Force[i][n] * dt; // Every time dt, the particle gets an 						  // increase in velocity[x,y,z]:force * dt
+vel[i][n] =  vel[i][n] + Force[i][n] * dt; 
+//vel[i][n] =  (pos[i][n]-old_pos[i][n])/dt + Force[i][n] * dt; 
 } } 
 }
 
@@ -394,8 +391,17 @@ void Update_position(){
 int i,n;
 for (n = 0; n < N; ++n){
 for (i = 0; i < dim; ++i) {
-old_pos[i][n] = pos[i][n]; 			// save previous position in new matrix
 pos[i][n] = pos[i][n] + vel[i][n] *dt;
+}}
+}
+
+// ------ Copy position ------ \\
+
+void Copy_position(){
+int i,n;
+for (n = 0; n < N; ++n){
+for (i = 0; i < dim; ++i) {
+old_pos[i][n] = pos[i][n]; 		// save previous position in new matrix
 }}
 }
 
@@ -409,15 +415,10 @@ double Ek = 0;
 double Ep = 0; 
 double dist[3];
 double radius;
-
-//  Kinetical energy (v^2/2) \\
-
+// -- Kinetical energy (v^2/2)
 for (int n = 0; n < N; ++n)
-Ek += pow(vel[0][n],2)+pow(vel[1][n],2)+pow(vel[2][n],2);
-Ek = 0.5 * Ek;
-
-//  Potential energy (Lennard jones potential) \\
-
+Ek += 0.5 * (pow(vel[0][n],2)+pow(vel[1][n],2)+pow(vel[2][n],2));
+// -- Potential energy (Lennard jones potential)
 for (int n = 0; n < N; ++n){
 for (int m=0; m < N; ++m){
 if (n != m){ // Skip if the loop is dealing with the same particle
@@ -425,9 +426,9 @@ if (n != m){ // Skip if the loop is dealing with the same particle
 for (int d=0; d < dim; ++d)
 dist[d] = pos[d][m]-pos[d][n]; 
 // Calculate the distance (squared) between two particles
-radius = pow(pow(dist[0],2) + pow(dist[1],2) + pow(dist[2],2),3);
+radius = pow(dist[0],2) + pow(dist[1],2) + pow(dist[2],2);
 // Calculate the potential energy according to the lennard jones Potential
-Ep += ((pow(radius,-2) - pow(radius,-1)));
+Ep += 4*(sigma12*pow(radius,-6) - sigma6*pow(radius,-3));
 }}}
 cout << Ep + Ek << endl;
 }
@@ -436,8 +437,10 @@ cout << Ep + Ek << endl;
 
 void Calculate_Individual_Kinetic_Energies(){
 double Ek[N],EK=0;
+// Kinetic energy per particle (Ek[n])
 for (int n=0; n<N; ++n)
 Ek[n] = 0.5 * pow(vel[0][n],2)+pow(vel[1][n],2)+pow(vel[2][n],2);
+// Total kinetic energy (EK)
 for (int n=0; n < N ;n++)
 EK += Ek[n];
 cout << "EK " << EK << endl;
@@ -448,18 +451,20 @@ cout << "EK " << EK << endl;
 void Calculate_Individual_Potential_Energies(){
 double radius;
 double Ep[N],EP=0;
-double dist[dim];
+double dist[dim]; //dist probably not necesary because it is direction indipendent
 for (int n=0; n<N; ++n){
-Ep[n]=0;
+Ep[n]=0; // probably not nessesary because it is not a grobal variable
 for (int m=0; m<N; ++m){
 if (n != m){
-radius = 0;
+radius = 0; // reset this constant for every new particle
 for (int d=0; d<dim; ++d){
 dist[d] = pow(pos[d][n]-pos[d][m],2); 
 radius += dist[d];
 }
-Ep[n] += pow(radius,-6) - pow(radius,-3);
+// Potential energy per particle (Ep)
+Ep[n] += 4*(sigma12*pow(radius,-6) - sigma6*pow(radius,-3));
 } } 
+// Total potential energy (EP)
 EP +=Ep[n];
 }
 cout << "EP " << EP <<endl;
@@ -480,26 +485,29 @@ int i;
 /* Run simulation
 The order is important!
 The force is dependend on the position, the velocity is dependend on the force and the position is dependend on the velocity.
-So: First calculate the force according to the old positions. followed by the update of the position and velocity after that. 
-Note: I'm not sure if the previous force or the new force should be used to update teh velocity.
 */
-
 for (i = 0; i < Run ; i++){
 //force_calculate();
-
-Update_position();	
+Copy_position();
+Update_force_brute();
 Update_velocity(); 
-brute_force_calculate();
-//Calculate_Energy();
-Calculate_Individual_Kinetic_Energies();
-Calculate_Individual_Potential_Energies();
+Update_position();
 
-//int sim=0;
-//sim++;
-//if (sim>100){
-//sim = sim -100;
+Calculate_Energy();
+//Calculate_Individual_Kinetic_Energies();
+//Calculate_Individual_Potential_Energies();
+
+/*
+int sim=0;
+sim++;
+if (sim>10){
+sim = sim -10;
+Calculate_Energy();
+}
+*/
 //cout << i << " " << Force[0][2] << " " << Force[1][2] << " " << Force[2][2] << endl;
 //cout << i << " " << pos[0][2] << " " << pos[1][2] << " " << pos[2][2] << endl;
+//cout << i << " " << vel[0][2] << " " << vel[1][2] << " " << vel[2][2] << endl;
 //}
 
 
