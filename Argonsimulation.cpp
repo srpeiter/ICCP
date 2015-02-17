@@ -27,7 +27,7 @@ double *Force[dim];
 double *Force_previous[3];
 
 
-double time_step=0.01;
+double time_step=0.001;
 
 
 const int cell_number=5;  // test: cellsize should be the cuttoff r_c of 
@@ -40,7 +40,7 @@ int *link_list;
 
 // random number generator for initial velocity determination
 default_random_engine generator;
-uniform_real_distribution<double> unif_dist(0.0,1.0);
+normal_distribution<double> Maxwell_dist(0.0,1.0);
 
 // function to determine the number of particles during runtime
 // and then to make the array pos and vel (allocate/reserve memory);
@@ -96,6 +96,7 @@ printf("Error:Memory couldn't be allocated");
 
 //polar form of box-muller for generating Maxwell distribution
 // mean 0 and std 1;
+/*
 double  box_muller_gauss()
 {
 double ran_number, x1, x2, w;
@@ -111,7 +112,7 @@ w = x1*x1 + x2*x2;
 return ran_number= x1* (sqrt((-2 * log(w))/w));
 
 }
-
+*/
 
 
 //Step 1: Initialization
@@ -147,28 +148,28 @@ int stepsize=boxlength;
 			for( int k=0; k < stepsize;k++)
 
 			{  if (n>N)
-				return;
+			return;
 
 		// making fcc lattice	
 			
 			 //position initialization
-			x = (3*i + j + k)/3;	//x position 
-			y = (3*j + k)/3;	//y position
+		//	x = (3*i + j + k)/3;	//x position 
+		//	y = (3*j + k)/3;	//y position
 						//z = k
 			   //subtract step size if x or y > step size
-			lx = stepsize * floor(x/stepsize); 	
-			ly = stepsize * floor(y/stepsize);
-			pos[0][n]=(x-lx)*gridsize;
-			pos[1][n]=(y-ly)*gridsize;
+		//	lx = stepsize * floor(x/stepsize); 	
+		//	ly = stepsize * floor(y/stepsize);
+			pos[0][n]=(i)*gridsize;
+			pos[1][n]=(j)*gridsize;
 			pos[2][n]=(k)*gridsize;
 			++n;
 			}
 
 	// velocity Initialization
-			for ( m=0; m < N ;++m){
-			vel[0][m]=box_muller_gauss();
-			vel[1][m]=box_muller_gauss();
-			vel[2][m]=box_muller_gauss();
+vel:	for ( m=0; m < N ;++m){
+			vel[0][m]=Maxwell_dist(generator);
+			vel[1][m]=Maxwell_dist(generator);
+			vel[2][m]=Maxwell_dist(generator);
 			v_sum[0]+= vel[0][m];
 			v_sum[1]+= vel[1][m];
 			v_sum[2]+= vel[2][m];
@@ -220,9 +221,9 @@ memset(HEAD,0,sizeof(HEAD)); // Note HEAD is knwon before compile time
 
  for (int i = 0; i < N; i++) 
  {
- cellx= floor(cell_number*pos[0][i]/(boxlength*gridsize));
- celly= floor(cell_number*pos[1][i]/(boxlength*gridsize));
- cellz= floor(cell_number*pos[2][i]/(boxlength*gridsize));
+ cellx= floor((cell_number-1)*pos[0][i]/((boxlength-1)*gridsize));
+ celly= floor((cell_number-1)*pos[1][i]/((boxlength-1)*gridsize));
+ cellz= floor((cell_number-1)*pos[2][i]/((boxlength-1)*gridsize));
 //cout <<"cellx "<< cellx << "celly "<< celly << "cellz "<< cellz <<endl;
 link_list[i]=HEAD[cellx][celly][cellz];
 //cout << link_list[i]<< endl;
@@ -255,11 +256,10 @@ double dist[3], radius;
 int ii, jj,kk, id;
 
 for (int m=0 ; m < N; ++m)
-{cout << "m "<< m<< endl;
- cellx= floor(cell_number*pos[0][m]/((boxlength)*gridsize));
- celly= floor(cell_number*pos[1][m]/((boxlength)*gridsize));
- cellz= floor(cell_number*pos[2][m]/((boxlength)*gridsize));
-  
+{//cout << "m "<< m<< endl;
+cellx= floor((cell_number-1)*pos[0][m]/((boxlength-1)*gridsize));
+ celly= floor((cell_number-1)*pos[1][m]/((boxlength-1)*gridsize));
+ cellz= floor((cell_number-1)*pos[2][m]/((boxlength-1)*gridsize));
 
   for(int i=cellx-1; i <= cellx+1 ; i++)
 	for(int j=celly-1; j <=celly+1 ;j++)
@@ -313,7 +313,8 @@ for (int m=0 ; m < N; ++m)
 id = HEAD[ii][jj][kk];
 
 // search for all particles in box;
-do {
+while (id !=0) {
+
 
 if (id == m)
 id = link_list[id]; // skip if it is the same particles
@@ -325,26 +326,26 @@ for (int d=0; d < dim; ++d)
 if (periodic[d]==0)
 	postemp[d]=pos[d][id];
 else if (periodic[d]==1)
-	postemp[d]=pos[d][id] +(boxlength-1) ;
+	postemp[d]=pos[d][id] -(boxlength-1) ;
 else if (periodic[d]==2)
-	postemp[d]=pos[d][id] - (boxlength-1);
+	postemp[d]=pos[d][id] + (boxlength-1);
 dist[d]=pos[d][m]-postemp[d];
 }
 // calculate distance
 radius= pow(dist[0],2) +  pow(dist[1],2) + pow(dist[2],2) ;
-if (radius==0) goto next;
+if (radius==0) goto next; // dont calculate force when radius is 0;
 // now calculate force through lennard jones Potential
-for (int d=0; d < dim; ++d)
-{
 
+fprintf(stdout, "radius %f \n",radius);
+for (int d=0; d < dim; ++d)
 Force[d][m] += (-24* (dist[d])*(2*pow(radius,-7)+ pow(radius,-4)));
 
-}
+
 
 
 next: id= link_list[id];
 //cout << "id "<< id << endl;
-} while (id !=0);// go till the end of the link_list	
+} // go till the end of the link_list	
 
 }	
  
@@ -420,23 +421,33 @@ void simulate_process()
 setup_cell_link();// setup link-cell construction
 
 force_calculate(); // calculate the force for position update
+for (int n=0; n < N ;n++)
+cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
+        
 
 cp_prev_Force();
+for (int n=0; n < N ;n++)
+cout <<" pos "<< pos[0][n] << " pos "<< pos[1][n]<< " pos "<< pos[2][n]<<endl;
+        
 
 pos_update(); // update the position
+
+for (int n=0; n < N ;n++)
+cout <<" pos "<< pos[0][n] << " pos "<< pos[1][n]<< " pos "<< pos[2][n]<<endl;
+         
+
+
 
 setup_cell_link(); // again make a new cell link construction
 
 force_reset(); // reset all the foreces
 
 force_calculate(); //  caculate the forces;
+for (int n=0; n < N ;n++)
+cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
+        
 
 vel_update(); // update the velocity
-for (int n=0; n < N ;n++)
-{
-	 cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
-         cout << vel[0][n] << " "<< vel[1][n]<< " "<< vel[2][n]<<endl;
-}
 
 
 force_reset(); // reset forces again : this is very inefficient, so optimize
@@ -467,17 +478,23 @@ int main(int argc, char* argv[])
 
  Make_array(argc,argv);
  
+
  Initialization();
 
-setup_cell_link();// setup link-cell construction
+//setup_cell_link();// setup link-cell construction
 
-force_calculate(); // calculate the force for position update
+//force_calculate(); // calculate the force for position update
 
-for (int n=0; n < N ;n++)
-{
-	 cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
-         cout << vel[0][n] << " "<< vel[1][n]<< " "<< vel[2][n]<<endl;
-}
+ for (int j=0;j<5;j++){
+	 fprintf(stdout, "j %i \n", j);
+simulate_process();
+
+ }
+//for (int n=0; n < N ;n++)
+//{
+//	 cout << Force[0][n] << " "<< Force[1][n]<< " "<< Force[2][n]<<endl;
+//         cout << vel[0][n] << " "<< vel[1][n]<< " "<< vel[2][n]<<endl;
+//}
 
 
 // for (int j=1; j < 4; j++) 
