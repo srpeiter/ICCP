@@ -33,7 +33,7 @@ double dt;		// discrete time step
 const int dim = 3;	// Number of dimension
 double EK;		// Total kinetic energy
 double EP;		// Total potential energy
-double Boxlength; 	// The length of the box
+double Boxlength =10; 	// The length of the box
 double *pos[dim];	// Position array X,Y,Z
 double *POS[dim];	// Position array X,Y,X with boundaries included
 double *vel[dim];	// Velocity array Vx,Vy,Vz
@@ -52,7 +52,8 @@ _________________________________________________________
 
 void Make_array();
 void Parameters();
-void Initiate_Position();
+void Initiate_Position_Simple();
+void Initiate_Position_Cubic();
 void Initiate_Velocity();
 void Update_position();
 void Update_velocity();
@@ -107,18 +108,31 @@ printf("Error: Give the number of particles N followed by the number of runs. \n
 else{
 N = atoi(argv[1]);
 Run = atoi(argv[2]); 
-dt = 0.001;
+dt = 0.0001;
 }
 }
 
 // ________ Initiate particles position ________ \\
 
-void Initiate_Position(){
+void Initiate_Position_Simple(){
 for (int n=0; n<N; ++n){
 pos[0][n] = 1.2 * n;	// Let's start easy
-pos[1][n] = 0;
-pos[2][n] = 0;
+pos[1][n] = 1;
+pos[2][n] = 1;
 }
+}
+
+void Initiate_Position_Cubic(){
+int N3 = round(pow(N,0.3333));
+int n = 0;
+for (int x = 0; x < N3; ++x){
+for (int y = 0; y < N3; ++y){
+for (int z = 0; z < N3; ++z){
+pos[0][n] = 1*x;	
+pos[1][n] = 1*y;
+pos[2][n] = 1*z;
+n += 1;
+} } }
 }
 
 // ________ Initiate particles velocity ________ \\
@@ -183,13 +197,19 @@ force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d][m];
 // ________ Update boundaries ________ \\
 
 // copy the particles in the box all around the middle box
-void Update_boundaries(){
-for (int b = 0; b << 27; ++b){ // Box 1 till 27
+// Note: under construction
 
+void Update_boundaries(){
+int Shift_X = -1;
+int Shift_Y = -1;
+int Shift_Z = -1;
+for (int b = 0; b << 27; ++b){ // Box 1 till 27
+if (b = 3)
+cout << " test" << endl;
 for (int n = 0; n << N; ++n){
-POS[d][n+(b * N)] = pos[d][n] + Boxlength * Shift_X; 
-POS[d][n+(b * N)] = pos[d][n] + Boxlength * Shift_Y; 
-POS[d][n+(b * N)] = pos[d][n] + Boxlength * Shift_Z; 
+POS[0][n+(b * N)] = pos[0][n] + Boxlength * Shift_X; 
+POS[1][n+(b * N)] = pos[1][n] + Boxlength * Shift_Y; 
+POS[2][n+(b * N)] = pos[2][n] + Boxlength * Shift_Z; 
 } }
 }
 
@@ -249,12 +269,13 @@ _________________________________________________________
 
 void Display(){
 int EnergyDisp = 1;		// Display energies (1/0)
-int PVFDisp = 0;		// Display position, velocity, force (1/0)
+int PVFDisp = 1;		// Display position, velocity, force (1/0)
 if (runtemp > 100){		// only display every x runs
-runtemp += -100;			// reset counter
+runtemp += -100;  		// reset counter
 if (PVFDisp > 0){
 for (int n = 0; n < N; ++n){
-cout << n << "." << run << " F: " << force[0][n] << " V: " << vel[0][n] << " X: " << pos[0][n] << endl;
+// cout << n << "." << run << " F: " << force[0][n] << " V: " << vel[0][n] << " X: " << pos[0][n] << endl;
+// cout << n << "." << run << " X: " << pos[0][n] << " " << "Y: " << pos[1][n] << " " << "Z: " << pos[2][n] << " " << endl;
 } }
 if (EnergyDisp > 0){
 cout << "EK: " << EK << " EP: " << EP << " EP + EK: " << EP+EK << endl;
@@ -274,16 +295,16 @@ _________________________________________________________
 int main(int argc, char*argv[]){
 Parameters(argc, argv);
 Make_array(argc, argv);
-Initiate_Position();
+Initiate_Position_Cubic();
 Initiate_Velocity();
 for (run = 0; run<Run; ++run){
+Display();
 Update_force();
 Update_velocity();
 Update_position();
 Calculate_Kinetic_Energy();
 Calculate_Potential_Energy();
 Energy_Correction();
-Display();
 }
 
 }
