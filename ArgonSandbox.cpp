@@ -30,10 +30,11 @@ int Run; 		// Number of simulations rounds
 int run;		// Round number
 int runtemp = 0;	// Used for the display function 
 double dt;		// discrete time step
+double density;		// The denisty of the box
 const int dim = 3;	// Number of dimension
 double EK;		// Total kinetic energy
 double EP;		// Total potential energy
-double Boxlength =10; 	// The length of the box
+double boxlength; 	// The length of the box
 double *pos[dim];	// Position array X,Y,Z
 double *POS[dim];	// Position array X,Y,X with boundaries included
 double *vel[dim];	// Velocity array Vx,Vy,Vz
@@ -54,6 +55,7 @@ void Make_array();
 void Parameters();
 void Initiate_Position_Simple();
 void Initiate_Position_Cubic();
+void Initiate_Position_FCC();
 void Initiate_Velocity();
 void Update_position();
 void Update_velocity();
@@ -74,7 +76,7 @@ _________________________________________________________
 */
 
 default_random_engine generator;
-uniform_real_distribution<double> unif_dist(0.0,1.0);
+normal_distribution<double> maxwell(0.0,1.0);
 
 /*
 _________________________________________________________
@@ -103,12 +105,21 @@ POS[i] = new double[27 * N] (); // The positions will be dublicated all around t
 // ________ Process parameters ________ \\
 
 void Parameters(int argc, char* argv[]){
-if (argc < 3){
-printf("Error: Give the number of particles N followed by the number of runs. \nExample: './ArgonSandbox 9 10 ', meaning 9 particles and 10 runs 1\n");}
+if (argc !=3){
+printf("Error: Give the number of particles N followed by the denisty and number of runs. \nExample: './ArgonSandbox 9 10 ', meaning 9 particles and 10 runs 1\n");}
 else{
 N = atoi(argv[1]);
-Run = atoi(argv[2]); 
-dt = 0.0001;
+density = atoi(argv[2]);
+
+Run = atoi(argv[3]); 
+dt = 0.001;
+boxlength = pow((N/density),0.3333);
+cub_num=pow(N,0.333);
+
+a=boxlength/cub_num;
+
+
+
 }
 }
 
@@ -116,21 +127,41 @@ dt = 0.0001;
 
 void Initiate_Position_Simple(){
 for (int n=0; n<N; ++n){
-pos[0][n] = 1.2 * n;	// Let's start easy
+pos[0][n] = 1.2 * n;	
 pos[1][n] = 1;
 pos[2][n] = 1;
 }
 }
 
 void Initiate_Position_Cubic(){
+cout << boxlength << endl;
 int N3 = round(pow(N,0.3333));
 int n = 0;
 for (int x = 0; x < N3; ++x){
 for (int y = 0; y < N3; ++y){
 for (int z = 0; z < N3; ++z){
-pos[0][n] = 1*x;	
-pos[1][n] = 1*y;
-pos[2][n] = 1*z;
+pos[0][n] = x/N3*boxlength;	
+pos[1][n] = y/N3*boxlength;
+pos[2][n] = z/N3*boxlength;
+cout << 1/N3 << endl;
+n += 1;
+} } }
+}
+
+void Initiate_Position_FCC(){
+double a = 2.2;
+double unitcell[3][4]={{0, 0.5*a, 0.5*a,0},{0,0,0.5*a ,0.5*a},{0,0.5*a,0,0.5*a}};
+int n = 0;
+int N3 = round(pow(N,0.3333));
+cout<< N3 << endl;
+for (int x = 0; x < N3; ++x){
+for (int y = 0; y < N3; ++y){
+for (int z = 0; z < N3; ++z){
+if (n<N){
+pos[0][n] = unitcell[0][n] + x * a;	
+pos[1][n] = unitcell[1][n] + y * a;
+pos[2][n] = unitcell[2][n] + z * a;
+}
 n += 1;
 } } }
 }
@@ -139,9 +170,9 @@ n += 1;
 
 void Initiate_Velocity(){
 for (int n=0; n<N; ++n){
-vel[0][n] = 0;
-vel[1][n] = 0;
-vel[2][n] = 0;
+vel[0][n] = maxwell(generator);
+vel[1][n] = maxwell(generator);
+vel[2][n] = maxwell(generator);
 }
 }
 
@@ -200,17 +231,17 @@ force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d][m];
 // Note: under construction
 
 void Update_boundaries(){
-int Shift_X = -1;
-int Shift_Y = -1;
-int Shift_Z = -1;
-for (int b = 0; b << 27; ++b){ // Box 1 till 27
-if (b = 3)
-cout << " test" << endl;
-for (int n = 0; n << N; ++n){
-POS[0][n+(b * N)] = pos[0][n] + Boxlength * Shift_X; 
-POS[1][n+(b * N)] = pos[1][n] + Boxlength * Shift_Y; 
-POS[2][n+(b * N)] = pos[2][n] + Boxlength * Shift_Z; 
-} }
+int b = 0;
+for (int Shift_X = -1; Shift_X < 2; ++Shift_X){
+for (int Shift_Y = -1; Shift_Y < 2; ++Shift_Y){
+for (int Shift_Z = -1; Shift_Z < 2; ++Shift_Z){
+for (int n = 0; n < N; ++n){
+POS[0][n+(b * N)] = pos[0][n] + boxlength * Shift_X; 
+POS[1][n+(b * N)] = pos[1][n] + boxlength * Shift_Y; 
+POS[2][n+(b * N)] = pos[2][n] + boxlength * Shift_Z; 
+} 
+b += 1;
+} } } 
 }
 
 
@@ -270,17 +301,17 @@ _________________________________________________________
 void Display(){
 int EnergyDisp = 1;		// Display energies (1/0)
 int PVFDisp = 1;		// Display position, velocity, force (1/0)
-if (runtemp > 100){		// only display every x runs
-runtemp += -100;  		// reset counter
+if (runtemp > -1){		// only display every x runs
+runtemp += -0;  		// reset counter
 if (PVFDisp > 0){
 for (int n = 0; n < N; ++n){
 // cout << n << "." << run << " F: " << force[0][n] << " V: " << vel[0][n] << " X: " << pos[0][n] << endl;
-// cout << n << "." << run << " X: " << pos[0][n] << " " << "Y: " << pos[1][n] << " " << "Z: " << pos[2][n] << " " << endl;
+// cout << n << "." << run << " X: " << POS[0][n] << " " << "Y: " << POS[1][n] << " " << "Z: " << POS[2][n] << " " << endl;
+cout << n << "." << run << " X: " << pos[0][n] << " " << "Y: " << pos[1][n] << " " << "Z: " << pos[2][n] << " " << endl;
 } }
 if (EnergyDisp > 0){
-cout << "EK: " << EK << " EP: " << EP << " EP + EK: " << EP+EK << endl;
-}
-}
+// cout << "EK: " << EK << " EP: " << EP << " EP + EK: " << EP+EK << endl;
+} }
 runtemp += 1;
 }
 
@@ -298,6 +329,7 @@ Make_array(argc, argv);
 Initiate_Position_Cubic();
 Initiate_Velocity();
 for (run = 0; run<Run; ++run){
+Update_boundaries();
 Display();
 Update_force();
 Update_velocity();
