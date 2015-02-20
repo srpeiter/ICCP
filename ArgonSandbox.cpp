@@ -109,17 +109,17 @@ POS[i] = new double[27 * N] (); // The positions will be dublicated all around t
 // ________ Process parameters ________ \\
 
 void Parameters(int argc, char* argv[]){
-if (argc !=4){
-printf("Error: Give the number of particles N followed by the denisty and number of runs. \nExample: './ArgonSandbox 9 1 10', meaning 9 particles and 10 runs 1\n");}
+if (argc !=5){
+printf("Error: Give the number of particles N followed by the denisty, number of runs and time steps. \nExample: './ArgonSandbox 9 1 10 0.0001', meaning 9 particles and 10 runs with density 1. Taking time steps dt.\n");}
 else{
 
 // Inputes
 N = atoi(argv[1]);
 density = atof(argv[2]);
 Run = atoi(argv[3]); 
+dt = atof(argv[4]);
 
 // Others and calculated values
-dt = 0.0001;
 boxlength = pow((N/density),0.3333);
 cub_num = ceil(pow(N,0.333));
 a=boxlength/cub_num;
@@ -341,8 +341,8 @@ _________________________________________________________
 void Display(){
 int EnergyDisp = 1;		// Display energies (1/0)
 int PVFDisp = 1;		// Display position, velocity, force (1/0)
-if (runtemp > -1){		// only display every x runs
-runtemp += -0;  		// reset counter
+if (runtemp > 100){		// only display every x runs
+runtemp += -100;  		// reset counter
 if (PVFDisp > 0){
 for (int n = 0; n < N; ++n){
 // cout << n << "." << run << " F: " << force[0][n] << " V: " << vel[0][n] << " X: " << pos[0][n] << endl;
@@ -384,7 +384,6 @@ Initiate_Velocity();
 for (run = 0; run<Run; ++run){
 Update_boundaries();
 Display();
-// Update_force_brute_force();
 Update_force_with_boundaries_brute_force();
 Update_velocity();
 Update_position_with_boundaries();
