@@ -38,6 +38,7 @@ double EP;		// Total potential energy
 double boxlength; 	// The length of the box
 double *pos[dim];	// Position array X,Y,Z
 double *POS[dim];	// Position array X,Y,X with boundaries included
+			// The size of this matrix is 27 * N
 double *vel[dim];	// Velocity array Vx,Vy,Vz
 double *force[dim];	// Force array Fx,Fy,Fz
 
@@ -128,6 +129,8 @@ a=boxlength/cub_num;
 
 // ________ Initiate particles position ________ \\
 
+// Sandbox style initialization
+
 void Initiate_Position_Simple(){
 for (int n=0; n<N; ++n){
 pos[0][n] = 1.2 * n;	
@@ -135,6 +138,8 @@ pos[1][n] = 1;
 pos[2][n] = 1;
 }
 }
+
+// Cubic structure
 
 void Initiate_Position_Cubic(){
 int n = 0;
@@ -149,6 +154,8 @@ n++;
 }
 }
 
+// FCC structure
+
 void Initiate_Position_FCC(){
 double unitcell[3][4]={{0, 0.5*a, 0.5*a,0},{0,0,0.5*a ,0.5*a},{0,0.5*a,0,0.5*a}};
 int n = 0;
@@ -156,7 +163,7 @@ for (int x = 0; x < cub_num; ++x)
 for (int y = 0; y < cub_num; ++y)
 for (int z = 0; z < cub_num; ++z)
 for (int j = 0; j < 4; ++j)
-if (n < N){ 			// Stop when the number of particles is reached
+if (n < N){ 			// Stop if the number of particles is reached
 pos[0][n] = unitcell[0][j] + x * a;	
 pos[1][n] = unitcell[1][j] + y * a;
 pos[2][n] = unitcell[2][j] + z * a;
@@ -185,20 +192,21 @@ _________________________________________________________
 
 // ________ Update particles position ________ \\
 
-void Update_position(){
+
 
 // basic function
 
+void Update_position(){
 for (int n = 0; n < N; ++n){
 for (int i = 0; i < dim; ++i){		
 pos[i][n] += pos[i][n] + vel[i][n] *dt;	// x(i) = x(i-1) + v(i)*dt
 }}
 }
 
+// This function puts particles back in the box when they would 
+// otherwise leave the box
+
 void Update_position_with_boundaries(){
-
-// This function puts particles back in the box when they would otherwise leave the box
-
 for (int n = 0; n < N; ++n){
 for (int i = 0; i < dim; ++i){		
 pos[i][n] += vel[i][n] *dt;	// x(i) = x(i-1) + v(i)*dt
@@ -219,10 +227,12 @@ vel[i][n] = vel[i][n] + force[i][n] *dt;// v(i) = v(i-1) + f(i)*dt
 // ________ Update particles force ________ \\
 
 
+// This function calculates the force between every particle for each 
+// particle including the particles due to the boundary conditions 
+// (except itself) 
+// Note: "dist" as array is not necessary
+
 void Update_force_with_boundaries_brute_force(){
-
-// This function calculates the force between every particle for each particle including the particles due to the boundary conditions (except itself) 
-
 double Dist2;
 int d;
 for (int n = 0; n < N; ++n){
@@ -244,10 +254,12 @@ force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d][m];
 } } }
 }
 
+
+// This function calculates the force between every particle for each 
+// particle (except itself) 
+// Note: "dist" as array is not necessary
+
 void Update_force_brute_force(){
-
-// This function calculates the force between every particle for each particle (except itself) 
-
 double Dist2;
 int d;
 for (int n = 0; n < N; ++n){
@@ -269,7 +281,6 @@ force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d][m];
 // ________ Update boundaries ________ \\
 
 // copy the particles in the box all around the middle box
-// Note: under construction
 
 void Update_boundaries(){
 int b = 0;
@@ -377,19 +388,19 @@ _________________________________________________________
 */
 
 int main(int argc, char*argv[]){
-Parameters(argc, argv);
-Make_array(argc, argv);
-Initiate_Position_FCC();
-Initiate_Velocity();
+Parameters(argc, argv);				// Insert parameters
+Make_array(argc, argv);				// preallocate arrays
+Initiate_Position_FCC();			// Initiate positions
+Initiate_Velocity(); 				// Initiate velocity
 for (run = 0; run<Run; ++run){
-Update_boundaries();
-Display();
-Update_force_with_boundaries_brute_force();
-Update_velocity();
-Update_position_with_boundaries();
-Calculate_Kinetic_Energy();
-Calculate_Potential_Energy();
-Energy_Correction();
+Update_boundaries();				// Put boxes around the middle box
+Display();					// Display parameters
+Update_force_with_boundaries_brute_force();	// Update the force between particles
+Update_velocity();				// Update the velocity
+Update_position_with_boundaries();		// Update the position
+Calculate_Kinetic_Energy();			// Calculate the kinetic energy
+Calculate_Potential_Energy();			// Calculate the potential energy
+Energy_Correction();				// -- Under construction --
 }
 
 }
