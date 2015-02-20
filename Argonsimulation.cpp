@@ -23,10 +23,10 @@ double gridsize= 1;   		// gridsize position where the particles
 				// should be placed;
 int Run = 10;		// Number of runs
 double dt = 0.01;		// Discrete time unit
-const int dim =3; // read-only value
+const int dim =3; 	// read-only value
 double *pos[dim];	// position array x,y,z
 double *old_pos[dim];	// save the previous positions
-double *vel[dim];  // velocity array vx, vy, vz;
+double *vel[dim];  	// velocity array vx, vy, vz;
 double *Force[dim];
 int sigma12 = 1;		//These values are used in the lenard jones
 				//potential,

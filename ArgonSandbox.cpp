@@ -24,8 +24,9 @@ _________________________________________________________
 _________________________________________________________
 
 */
-
+double a;
 int N;			// Number of particles
+int cub_num;
 int Run; 		// Number of simulations rounds
 int run;		// Round number
 int runtemp = 0;	// Used for the display function 
@@ -105,21 +106,20 @@ POS[i] = new double[27 * N] (); // The positions will be dublicated all around t
 // ________ Process parameters ________ \\
 
 void Parameters(int argc, char* argv[]){
-if (argc !=3){
+if (argc !=4){
 printf("Error: Give the number of particles N followed by the denisty and number of runs. \nExample: './ArgonSandbox 9 10 ', meaning 9 particles and 10 runs 1\n");}
 else{
+// Inputes
 N = atoi(argv[1]);
-density = atoi(argv[2]);
-
+density = atof(argv[2]);
 Run = atoi(argv[3]); 
-dt = 0.001;
+// Others and calculated values
+dt = 0.0001;
 boxlength = pow((N/density),0.3333);
-cub_num=pow(N,0.333);
-
+cub_num = ceil(pow(N,0.333));
 a=boxlength/cub_num;
 
-
-
+cout << a << endl;
 }
 }
 
@@ -134,37 +134,35 @@ pos[2][n] = 1;
 }
 
 void Initiate_Position_Cubic(){
-cout << boxlength << endl;
-int N3 = round(pow(N,0.3333));
 int n = 0;
-for (int x = 0; x < N3; ++x){
-for (int y = 0; y < N3; ++y){
-for (int z = 0; z < N3; ++z){
-pos[0][n] = x/N3*boxlength;	
-pos[1][n] = y/N3*boxlength;
-pos[2][n] = z/N3*boxlength;
-cout << 1/N3 << endl;
-n += 1;
-} } }
+for (int x = 0; x < cub_num; ++x)
+for (int y = 0; y < cub_num; ++y)
+for (int z = 0; z < cub_num; ++z)
+if (n<N){ 			// Stop when the number of particles is reached
+pos[0][n] = x * a;	
+pos[1][n] = y * a;
+pos[2][n] = z * a;
+n++;
+}
 }
 
 void Initiate_Position_FCC(){
-double a = 2.2;
 double unitcell[3][4]={{0, 0.5*a, 0.5*a,0},{0,0,0.5*a ,0.5*a},{0,0.5*a,0,0.5*a}};
 int n = 0;
-int N3 = round(pow(N,0.3333));
-cout<< N3 << endl;
-for (int x = 0; x < N3; ++x){
-for (int y = 0; y < N3; ++y){
-for (int z = 0; z < N3; ++z){
-if (n<N){
-pos[0][n] = unitcell[0][n] + x * a;	
-pos[1][n] = unitcell[1][n] + y * a;
-pos[2][n] = unitcell[2][n] + z * a;
+
+
+for (int x = 0; x < cub_num; ++x)
+for (int y = 0; y < cub_num; ++y)
+for (int z = 0; z < cub_num; ++z)
+for (int j = 0; j < 4; ++j)
+if (n < N){ 			// Stop when the number of particles is reached
+pos[0][n] = unitcell[0][j] + x * a;	
+pos[1][n] = unitcell[1][j] + y * a;
+pos[2][n] = unitcell[2][j] + z * a;
+n++;
 }
-n += 1;
-} } }
 }
+
 
 // ________ Initiate particles velocity ________ \\
 
@@ -307,10 +305,10 @@ if (PVFDisp > 0){
 for (int n = 0; n < N; ++n){
 // cout << n << "." << run << " F: " << force[0][n] << " V: " << vel[0][n] << " X: " << pos[0][n] << endl;
 // cout << n << "." << run << " X: " << POS[0][n] << " " << "Y: " << POS[1][n] << " " << "Z: " << POS[2][n] << " " << endl;
-cout << n << "." << run << " X: " << pos[0][n] << " " << "Y: " << pos[1][n] << " " << "Z: " << pos[2][n] << " " << endl;
+// cout << n << "." << run << " X: " << pos[0][n] << " " << "Y: " << pos[1][n] << " " << "Z: " << pos[2][n] << " " << endl;
 } }
 if (EnergyDisp > 0){
-// cout << "EK: " << EK << " EP: " << EP << " EP + EK: " << EP+EK << endl;
+cout << "EK: " << EK << " EP: " << EP << " EP + EK: " << EP+EK << endl;
 } }
 runtemp += 1;
 }
@@ -326,7 +324,7 @@ _________________________________________________________
 int main(int argc, char*argv[]){
 Parameters(argc, argv);
 Make_array(argc, argv);
-Initiate_Position_Cubic();
+Initiate_Position_FCC();
 Initiate_Velocity();
 for (run = 0; run<Run; ++run){
 Update_boundaries();
