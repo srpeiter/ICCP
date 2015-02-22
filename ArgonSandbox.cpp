@@ -37,11 +37,12 @@ double EK;		// Total kinetic energy
 double EP;		// Total potential energy
 double boxlength; 	// The length of the box
 double *pos[dim];	// Position array X,Y,Z
-double *POS[dim];	// Position array X,Y,X with boundaries included
+double *posb[dim];	// Position array X,Y,X with boundaries included
 			// The size of this matrix is 27 * N
 double *vel[dim];	// Velocity array Vx,Vy,Vz
 double *force[dim];	// Force array Fx,Fy,Fz
-
+double kb = 1.38066*pow(10,-23);	// Boltzmann constant
+double Temp;		// Temperature
 
 
 /*
@@ -70,7 +71,8 @@ void Calculate_Potential_Energy();
 void Calculate_Potential_Energy_with_boundaries();
 void Calculate_Kinetic_Energy();
 void Energy_Correction();
-
+void Calculate_Temperature();
+void Adjust_Temperature();
 
 /*
 _________________________________________________________
@@ -101,7 +103,7 @@ for (i = 0; i< dim; i++){
 pos[i]= new double[N] (); 
 vel[i]= new double[N] (); 
 force[i]= new double[N] ();
-POS[i] = new double[27 * N] (); // The positions will be dublicated all around the box
+posb[i] = new double[27 * N] (); // The positions will be duplicated all around the box
 } 
 // Vector preallocating
 }
@@ -175,9 +177,9 @@ n++;
 
 void Initiate_Velocity(){
 for (int n=0; n<N; ++n){
-vel[0][n] = maxwell(generator);
-vel[1][n] = maxwell(generator);
-vel[2][n] = maxwell(generator);
+vel[0][n] = maxwell(generator)/100;
+vel[1][n] = maxwell(generator)/100;
+vel[2][n] = maxwell(generator)/100;
 }
 }
 
@@ -198,7 +200,7 @@ _________________________________________________________
 void Update_position(){
 for (int n = 0; n < N; ++n){
 for (int i = 0; i < dim; ++i){		
-pos[i][n] += pos[i][n] + vel[i][n] *dt;	// x(i) = x(i-1) + v(i)*dt
+pos[i][n] += vel[i][n] *dt;	// x(i) = x(i-1) + v(i)*dt
 }}
 }
 
@@ -207,9 +209,11 @@ pos[i][n] += pos[i][n] + vel[i][n] *dt;	// x(i) = x(i-1) + v(i)*dt
 
 void Update_position_with_boundaries(){
 for (int n = 0; n < N; ++n){
-for (int i = 0; i < dim; ++i){		
-pos[i][n] += vel[i][n] *dt;	// x(i) = x(i-1) + v(i)*dt
-pos[i][n] += -floor(pos[i][n]/boxlength); // subtracts (-1, 0 or 1) * boxlength
+for (int d = 0; d < dim; ++d){		
+pos[d][n] += vel[d][n] *dt;	// x(i) = x(i-1) + v(i)*dt
+pos[d][n] += -floor(pos[d][n]/boxlength); // subtracts (-1, 0 or 1) * boxlength
+if (floor(pos[d][n]/boxlength) !=0)
+cout << n << " " << d << " " << floor(pos[d][n]/boxlength) << " " << endl;
 }}
 }
 
@@ -234,29 +238,27 @@ void Update_force_with_boundaries_brute_force(){
 double Dist2;
 int d;
 double dist[dim]; 
-cout << POS[0][7779] << endl;
-
-cout << POS[0][7780] << endl;
-
-cout << POS[0][7781] << endl;
 for (int n = 0; n < N; ++n){
 for (d = 0; d < dim; ++d)
 force[d][n] = 0; 			// Reset the force
 for (int m = 0; m < 27 * N; ++m){	// Including boundaries, 27 x N particles
-// << m << endl;
-//if (13 * N + n != m){			// Only calculate between different 
-					// particles (mind that we are dealing with 
+if (13 * N + n != m){			// Only calculate between different 
+					// particles (mind that we are 
 					// comparing with the boundary matrix 
 					// (middle box needed)
 Dist2 = 0;				// Reset "Distance squared"
 for (d = 0; d < dim; ++d){
-dist[d] = POS[d][m] - pos[d][n];	// Calculate the distance in x,y or z
+dist[d] = posb[d][m] - pos[d][n];	// Calculate the distance in x,y or z
 Dist2 += pow(dist[d],2);		// Calculate the distance squared
 }
-if (Dist2 != 0){
-for (d = 0; d < dim; ++d)		// Calculate the force
+if (Dist2 > 0.01){
+for (d = 0; d < dim; ++d){		// Calculate the force
 force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d];
-} } }
+if (d == 0)
+if (n == 0)
+if (Dist2 < 0.5)
+cout << m << " " << Dist2 << " " << force[0][1] << endl;
+} } } } }
 }
 
 
@@ -279,8 +281,9 @@ for (d = 0; d < dim; ++d){
 dist[d] = pos[d][m] - pos[d][n];	// Calculate the distance in x,y or z
 Dist2 += pow(dist[d],2);		// Calculate the distance squared
 }
-for (d = 0; d < dim; ++d)		// Calculate the force
+for (d = 0; d < dim; ++d){		// Calculate the force
 force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d];
+}
 } } }
 }
 
@@ -290,16 +293,21 @@ force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d];
 
 void Update_boundaries(){
 int b = 0;
-for (int x = -1; x < 2; ++x){
-for (int y = -1; y < 2; ++y){
-for (int z = -1; z < 2; ++z){
+for (int n = 0; n < N; ++n)
+cout << pos[0][n] << " " << pos[1][n] << " " << pos[2][n] << "    ";
+cout << endl;
+for (int x = -1; x < 2; ++x)
+for (int y = -1; y < 2; ++y)
+for (int z = -1; z < 2; ++z)
 for (int n = 0; n < N; ++n){
-POS[0][n+(b * N)] = pos[0][n] + boxlength * x; 
-POS[1][n+(b * N)] = pos[1][n] + boxlength * y; 
-POS[2][n+(b * N)] = pos[2][n] + boxlength * z; 
-} 
+posb[0][n+(b * N)] = pos[0][n] + boxlength * x; 
+posb[1][n+(b * N)] = pos[1][n] + boxlength * y; 
+posb[2][n+(b * N)] = pos[2][n] + boxlength * z; 
 b++;
-} } } 
+} 
+for (int n = 0; n < N; ++n)
+cout << pos[0][n] << " " << pos[1][n] << " " << pos[2][n] << "    ";
+cout << endl;
 }
 
 
@@ -343,7 +351,7 @@ for (int n = 0; n < N; ++n){
 for (int m = 0; m < 27 * N; ++m){	// Compare with the array containin all parti.
 Dist2 =0;				// Reset distance squared
 for (int d = 0; d < dim; ++d){
-dist[d] = POS[d][m] - pos[d][n];	// Distance between particles in one 
+dist[d] = posb[d][m] - pos[d][n];	// Distance between particles in one 
 					// direction
 Dist2 += pow(dist[d],2); 		// Distance between particles
 }
@@ -370,7 +378,37 @@ void Energy_Correction(){
 /*
 _________________________________________________________
 
- --------------- Extra functions -------------------- 
+ ------------------ Gas quantities --------------------- 
+_________________________________________________________
+
+*/
+
+// ________ Calculate the temperature ________ \\
+
+void Calculate_Temperature(){
+Temp = (2 * EK) / (kb * N * 3);
+}
+
+// ________ Change the temperature ________ \\
+
+// Adjust the velocities of the particles such that the system gains the desired temperature.
+// Note: The units of the system are computations units and not natural units
+
+void Adjust_Temperature(){
+Calculate_Temperature();	// Use the current temperature
+double Temp_Goal = 1;
+double avg_vel;
+avg_vel = pow((2 * EK) / N,0.5);
+for (int n = 0; n < N; ++n){
+for (int i = 0; i < dim; ++i){		
+vel[i][n] = (Temp_Goal * vel[i][n]) / avg_vel;
+} }
+}
+
+/*
+_________________________________________________________
+
+ ----------------- Extra functions --------------------- 
 _________________________________________________________
 
 */
@@ -378,32 +416,31 @@ _________________________________________________________
 // ________ Display values on screen ________ \\
 
 void Display(){
-int EnergyDisp = 1;		// Display energies (1/0)
-int PVFDisp = 1;		// Display position, velocity, force (1/0)
 if (runtemp > -1){		// only display every x runs
 runtemp += -0;  		// reset counter
-if (PVFDisp > 0){
 for (int n = 0; n < N; ++n){
 // cout << n << "." << run << " F: " << force[0][n] << " V: " << vel[0][n] << " X: " << pos[0][n] << endl;
-cout << n << "." << run << " X: " << pos[0][n] << " " << "Y: " << pos[1][n] << " " << "Z: " << pos[2][n] << " " << endl;
+// cout << n << "." << run << " X: " << pos[0][n] << " " << "Y: " << pos[1][n] << " " << "Z: " << pos[2][n] << " " << endl;
+// cout << n << "." << run << " Fx: " << force[0][n] << " " << "Fy: " << force[1][n] << " " << "Fz: " << force[2][n] << " " << endl;
 } 
 for (int n = 0; n < 27 * N; ++n){
-// cout << n << "." << run << " X: " << POS[0][n] << " " << "Y: " << POS[1][n] << " " << "Z: " << POS[2][n] << " " << endl;
-} }
-if (EnergyDisp > 0){
+// cout << n << "." << run << " X: " << posb[0][n] << " " << "Y: " << posb[1][n] << " " << "Z: " << posb[2][n] << " " << endl;
+}
 // cout << "EK: " << EK << " EP: " << EP << " EP + EK: " << EP+EK << endl;
-} }
+} 
+cout << Temp << endl;
 runtemp += 1;
 }
 
 // ________ Check for matrix for rows with the same values ________ \\
 
+
 void Matrix_row_checker(){
 for (int n = 0; n < 27 * N; ++n)
 for (int m = n + 1; m < 27 * N; ++m)
-if (POS[0][n] == POS[0][m])
-if (POS[1][n] == POS[1][m])
-if (POS[2][n] == POS[2][m])
+if (posb[0][n] == posb[0][m])
+if (posb[1][n] == posb[1][m])
+if (posb[2][n] == posb[2][m])
 cout << n << " " << m << endl;
 }
 
@@ -420,15 +457,20 @@ Parameters(argc, argv);			// Insert parameters
 Make_array(argc, argv);			// preallocate arrays
 Initiate_Position_FCC();		// Initiate positions
 Initiate_Velocity(); 			// Initiate velocity
-for (run = 0; run<Run; ++run){
-Display();				// Display parameters
-Update_boundaries();			// Put boxes around the middle box
-Update_force_brute_force();		// Update the force between particles
+for (run = 0; run<Run; ++run){		// Display parameters
+Update_boundaries();			// surround the box with replica boxes
+// Update_force_with_boundaries_brute_force(); // Update the force between particles
+Update_force_brute_force();
 Update_velocity();			// Update the velocity
-Update_position();			// Update the position
+// Update_position_with_boundaries();	// Update the position
+Update_position();
 Calculate_Kinetic_Energy();		// Calculate the kinetic energy
 Calculate_Potential_Energy();		// Calculate the potential energy
+Calculate_Temperature();		// Calculate the temperature
+Display();				// Display parameters
 Energy_Correction();			// -- Under construction --
+// Adjust_Temperature();		// Change the temperature of the system
+
 }
 cout << boxlength << " " << a << " " << cub_num << " " << endl;
 
