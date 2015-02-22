@@ -212,9 +212,7 @@ void Update_position_with_boundaries(){
 for (int n = 0; n < N; ++n){
 for (int d = 0; d < dim; ++d){		
 pos[d][n] += vel[d][n] *dt;	// x(i) = x(i-1) + v(i)*dt
-pos[d][n] += -floor(pos[d][n]/boxlength); // subtracts (-1, 0 or 1) * boxlength
-if (floor(pos[d][n]/boxlength) !=0)
-cout << n << " " << d << " " << floor(pos[d][n]/boxlength) << " " << endl;
+pos[d][n] += -boxlength * floor(pos[d][n]/boxlength); // subtracts (-1, 0 or 1) * boxlength
 }}
 }
 
@@ -252,14 +250,13 @@ for (d = 0; d < dim; ++d){
 dist[d] = posb[d][m] - pos[d][n];	// Calculate the distance in x,y or z
 Dist2 += pow(dist[d],2);		// Calculate the distance squared
 }
-if (Dist2 > 0.01){
+// if (Dist2 > 0.01){
 for (d = 0; d < dim; ++d){		// Calculate the force
 force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d];
-if (d == 0)
-if (n == 0)
-if (Dist2 < 0.5)
-cout << m << " " << Dist2 << " " << force[0][1] << endl;
-} } } } }
+} 
+if (Dist2 < 0.4)
+cout << n << " " << m << " " << Dist2 << " " << force[0][1] << endl;
+} } }
 }
 
 
@@ -294,9 +291,6 @@ force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d];
 
 void Update_boundaries(){
 int b = 0;
-for (int n = 0; n < N; ++n)
-cout << pos[0][n] << " " << pos[1][n] << " " << pos[2][n] << "    ";
-cout << endl;
 for (int x = -1; x < 2; ++x)
 for (int y = -1; y < 2; ++y)
 for (int z = -1; z < 2; ++z){
@@ -307,9 +301,6 @@ posb[2][n+(b * N)] = pos[2][n] + boxlength * z;
 } 
 b++;
 }
-for (int n = 0; n < N; ++n)
-cout << pos[0][n] << " " << pos[1][n] << " " << pos[2][n] << "    ";
-cout << endl;
 }
 
 
@@ -430,7 +421,8 @@ delete [] posb[d];
 
 void Display(){
 int Display_round = 100;			// Display after "x"  rounds
-if (runtemp > Display_round){		// only display every "x" runs
+runtemp += 1;
+if (runtemp >= Display_round){		// only display every "x" runs
 runtemp += -Display_round;  		// reset counter
 for (int n = 0; n < N; ++n){
 // cout << n << "." << run << " F: " << force[0][n] << " V: " << vel[0][n] << " X: " << pos[0][n] << endl;
@@ -443,7 +435,6 @@ for (int n = 0; n < 27 * N; ++n){
 cout << "EK: " << EK << " EP: " << EP << " EP + EK: " << EP+EK << endl;
 } 
 // cout << Temp << endl;
-runtemp += 1;
 }
 
 // ________ Check for matrix for rows with the same values ________ \\
@@ -472,20 +463,20 @@ Make_array(argc, argv);			// preallocate arrays
 Initiate_Position_FCC();		// Initiate positions
 Initiate_Velocity(); 			// Initiate velocity
 for (run = 0; run<Run; ++run){		// Display parameters
+Display();				// Display parameters
 Update_boundaries();			// surround the box with replica boxes
-// Update_force_with_boundaries_brute_force(); // Update the force between particles
-Update_force_brute_force();
+Update_force_with_boundaries_brute_force(); // Update the force between particles
+// Update_force_brute_force();
 Update_velocity();			// Update the velocity
-// Update_position_with_boundaries();	// Update the position
-Update_position();
+Update_position_with_boundaries();	// Update the position
+// Update_position();
 Calculate_Kinetic_Energy();		// Calculate the kinetic energy
 Calculate_Potential_Energy();		// Calculate the potential energy
 Calculate_Temperature();		// Calculate the temperature
-Display();				// Display parameters
 Energy_Correction();			// -- Under construction --
 // Adjust_Temperature();		// Change the temperature of the system
-
 }
+cout << "a: " << a << " boxlength: " << boxlength << " cub_num: " << cub_num << endl;
 
 Clean_up();
 }
