@@ -73,6 +73,7 @@ void Calculate_Kinetic_Energy();
 void Energy_Correction();
 void Calculate_Temperature();
 void Adjust_Temperature();
+void Clean_up();
 
 /*
 _________________________________________________________
@@ -177,9 +178,9 @@ n++;
 
 void Initiate_Velocity(){
 for (int n=0; n<N; ++n){
-vel[0][n] = maxwell(generator)/100;
-vel[1][n] = maxwell(generator)/100;
-vel[2][n] = maxwell(generator)/100;
+vel[0][n] = maxwell(generator);
+vel[1][n] = maxwell(generator);
+vel[2][n] = maxwell(generator);
 }
 }
 
@@ -298,13 +299,14 @@ cout << pos[0][n] << " " << pos[1][n] << " " << pos[2][n] << "    ";
 cout << endl;
 for (int x = -1; x < 2; ++x)
 for (int y = -1; y < 2; ++y)
-for (int z = -1; z < 2; ++z)
+for (int z = -1; z < 2; ++z){
 for (int n = 0; n < N; ++n){
 posb[0][n+(b * N)] = pos[0][n] + boxlength * x; 
 posb[1][n+(b * N)] = pos[1][n] + boxlength * y; 
 posb[2][n+(b * N)] = pos[2][n] + boxlength * z; 
-b++;
 } 
+b++;
+}
 for (int n = 0; n < N; ++n)
 cout << pos[0][n] << " " << pos[1][n] << " " << pos[2][n] << "    ";
 cout << endl;
@@ -413,11 +415,23 @@ _________________________________________________________
 
 */
 
+// ________ Cleaning memory ________ \\
+
+void Clean_up(){
+for (int d=0; d<3; ++d){
+delete [] pos[d];
+delete [] vel[d];
+delete [] force[d];
+delete [] posb[d];
+}
+}
+
 // ________ Display values on screen ________ \\
 
 void Display(){
-if (runtemp > -1){		// only display every x runs
-runtemp += -0;  		// reset counter
+int Display_round = 100;			// Display after "x"  rounds
+if (runtemp > Display_round){		// only display every "x" runs
+runtemp += -Display_round;  		// reset counter
 for (int n = 0; n < N; ++n){
 // cout << n << "." << run << " F: " << force[0][n] << " V: " << vel[0][n] << " X: " << pos[0][n] << endl;
 // cout << n << "." << run << " X: " << pos[0][n] << " " << "Y: " << pos[1][n] << " " << "Z: " << pos[2][n] << " " << endl;
@@ -426,9 +440,9 @@ for (int n = 0; n < N; ++n){
 for (int n = 0; n < 27 * N; ++n){
 // cout << n << "." << run << " X: " << posb[0][n] << " " << "Y: " << posb[1][n] << " " << "Z: " << posb[2][n] << " " << endl;
 }
-// cout << "EK: " << EK << " EP: " << EP << " EP + EK: " << EP+EK << endl;
+cout << "EK: " << EK << " EP: " << EP << " EP + EK: " << EP+EK << endl;
 } 
-cout << Temp << endl;
+// cout << Temp << endl;
 runtemp += 1;
 }
 
@@ -472,6 +486,6 @@ Energy_Correction();			// -- Under construction --
 // Adjust_Temperature();		// Change the temperature of the system
 
 }
-cout << boxlength << " " << a << " " << cub_num << " " << endl;
 
+Clean_up();
 }
