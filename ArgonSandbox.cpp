@@ -26,7 +26,7 @@ _________________________________________________________
 */
 double a;	   	// Length of unit FCC unit cell
 int N;			// Number of particles
-int cub_num;		// 
+int cub_num;		// Number of unit FCC boxes
 int Run; 		// Number of simulations rounds
 int run;		// Round number
 int runtemp = 0;	// Used for the display function 
@@ -42,7 +42,6 @@ double *POS[dim];	// Position array X,Y,X with boundaries included
 double *vel[dim];	// Velocity array Vx,Vy,Vz
 double *force[dim];	// Force array Fx,Fy,Fz
 
-double *dist[dim];	// A temperary matrix used for distance calculations
 
 
 /*
@@ -68,6 +67,7 @@ void Update_boundaries();
 void Display();
 void Matrix_row_checker();
 void Calculate_Potential_Energy();
+void Calculate_Potential_Energy_with_boundaries();
 void Calculate_Kinetic_Energy();
 void Energy_Correction();
 
@@ -101,7 +101,6 @@ for (i = 0; i< dim; i++){
 pos[i]= new double[N] (); 
 vel[i]= new double[N] (); 
 force[i]= new double[N] ();
-dist[i] = new double[N] ();
 POS[i] = new double[27 * N] (); // The positions will be dublicated all around the box
 } 
 // Vector preallocating
@@ -121,9 +120,9 @@ Run = atoi(argv[3]);
 dt = atof(argv[4]);
 
 // Others and calculated values
-boxlength = pow((N/density),0.3333);
-cub_num = ceil(pow(N,0.333));
-a=boxlength/cub_num;
+boxlength = pow((N/density),0.3333); 	// Lengths of the box
+cub_num = ceil(pow((N/4),0.333));	// Number of boxes
+a=boxlength/cub_num;			// Length of unity box
 }
 }
 
@@ -133,7 +132,7 @@ a=boxlength/cub_num;
 
 void Initiate_Position_Simple(){
 for (int n=0; n<N; ++n){
-pos[0][n] = 1.2 * n;	
+pos[0][n] = 1.2 * n*a;	
 pos[1][n] = 1;
 pos[2][n] = 1;
 }
@@ -230,27 +229,33 @@ vel[i][n] = vel[i][n] + force[i][n] *dt;// v(i) = v(i-1) + f(i)*dt
 // This function calculates the force between every particle for each 
 // particle including the particles due to the boundary conditions 
 // (except itself) 
-// Note: "dist" as array is not necessary
 
 void Update_force_with_boundaries_brute_force(){
 double Dist2;
 int d;
+double dist[dim]; 
+cout << POS[0][7779] << endl;
+
+cout << POS[0][7780] << endl;
+
+cout << POS[0][7781] << endl;
 for (int n = 0; n < N; ++n){
 for (d = 0; d < dim; ++d)
 force[d][n] = 0; 			// Reset the force
 for (int m = 0; m < 27 * N; ++m){	// Including boundaries, 27 x N particles
+// << m << endl;
 //if (13 * N + n != m){			// Only calculate between different 
 					// particles (mind that we are dealing with 
 					// comparing with the boundary matrix 
 					// (middle box needed)
 Dist2 = 0;				// Reset "Distance squared"
 for (d = 0; d < dim; ++d){
-dist[d][m] = POS[d][m] - pos[d][n];	// Calculate the distance in x,y or z
-Dist2 += pow(dist[d][m],2);		// Calculate the distance squared
+dist[d] = POS[d][m] - pos[d][n];	// Calculate the distance in x,y or z
+Dist2 += pow(dist[d],2);		// Calculate the distance squared
 }
 if (Dist2 != 0){
 for (d = 0; d < dim; ++d)		// Calculate the force
-force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d][m];
+force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d];
 } } }
 }
 
@@ -261,6 +266,7 @@ force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d][m];
 
 void Update_force_brute_force(){
 double Dist2;
+double dist[dim];
 int d;
 for (int n = 0; n < N; ++n){
 for (d = 0; d < dim; ++d)
@@ -270,11 +276,11 @@ if (n !=m){				// Only calculate between different
 					// particles
 Dist2 = 0;				// Reset "Distance squared"
 for (d = 0; d < dim; ++d){
-dist[d][m] = pos[d][m] - pos[d][n];	// Calculate the distance in x,y or z
-Dist2 += pow(dist[d][m],2);		// Calculate the distance squared
+dist[d] = pos[d][m] - pos[d][n];	// Calculate the distance in x,y or z
+Dist2 += pow(dist[d],2);		// Calculate the distance squared
 }
 for (d = 0; d < dim; ++d)		// Calculate the force
-force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d][m];
+force[d][n] += 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d];
 } } }
 }
 
@@ -309,18 +315,40 @@ _________________________________________________________
 
 // Note: It is more optimal to calculate the force and potential energy in one function
 
+// Calculate potentian energy potential energy only using particles in the box
+
 void Calculate_Potential_Energy(){
 double Dist2;
+double dist[dim];
 EP = 0; 				// Reset total potential energy parameter
 for (int n = 0; n < N; ++n){
 for (int m = n+1; m < N; ++m){		// Do not count double the potential energy
 Dist2 =0;				// Reset distance squared
 for (int d = 0; d < dim; ++d){
-dist[d][m] = pos[d][m] - pos[d][n];	// Distance between particles in one 
+dist[d] = pos[d][m] - pos[d][n];	// Distance between particles in one 
 					// direction
-Dist2 += pow(dist[d][m],2); 		// Distance between particles
+Dist2 += pow(dist[d],2); 		// Distance between particles
 }
 EP += 4 * (pow(Dist2,-6)-pow(Dist2,-3)); // Total potential energy
+} }
+}
+
+// Calculate potentian energy potential energy, also using particles in the other boxes
+
+void Calculate_Potential_Energy_with_boundaries(){
+double Dist2;
+double dist[dim];
+EP = 0; 				// Reset total potential energy parameter
+for (int n = 0; n < N; ++n){
+for (int m = 0; m < 27 * N; ++m){	// Compare with the array containin all parti.
+Dist2 =0;				// Reset distance squared
+for (int d = 0; d < dim; ++d){
+dist[d] = POS[d][m] - pos[d][n];	// Distance between particles in one 
+					// direction
+Dist2 += pow(dist[d],2); 		// Distance between particles
+}
+EP += 4 * (pow(Dist2,-6)-pow(Dist2,-3))/2; // Total potential energy 
+// Note: now I devide it by 2 because the energy will be counted double because it is harder to keep track whether we are dealing with the same particle
 } }
 }
 
@@ -352,18 +380,18 @@ _________________________________________________________
 void Display(){
 int EnergyDisp = 1;		// Display energies (1/0)
 int PVFDisp = 1;		// Display position, velocity, force (1/0)
-if (runtemp > 100){		// only display every x runs
-runtemp += -100;  		// reset counter
+if (runtemp > -1){		// only display every x runs
+runtemp += -0;  		// reset counter
 if (PVFDisp > 0){
 for (int n = 0; n < N; ++n){
 // cout << n << "." << run << " F: " << force[0][n] << " V: " << vel[0][n] << " X: " << pos[0][n] << endl;
-// cout << n << "." << run << " X: " << pos[0][n] << " " << "Y: " << pos[1][n] << " " << "Z: " << pos[2][n] << " " << endl;
+cout << n << "." << run << " X: " << pos[0][n] << " " << "Y: " << pos[1][n] << " " << "Z: " << pos[2][n] << " " << endl;
 } 
 for (int n = 0; n < 27 * N; ++n){
 // cout << n << "." << run << " X: " << POS[0][n] << " " << "Y: " << POS[1][n] << " " << "Z: " << POS[2][n] << " " << endl;
 } }
 if (EnergyDisp > 0){
-cout << "EK: " << EK << " EP: " << EP << " EP + EK: " << EP+EK << endl;
+// cout << "EK: " << EK << " EP: " << EP << " EP + EK: " << EP+EK << endl;
 } }
 runtemp += 1;
 }
@@ -388,19 +416,20 @@ _________________________________________________________
 */
 
 int main(int argc, char*argv[]){
-Parameters(argc, argv);				// Insert parameters
-Make_array(argc, argv);				// preallocate arrays
-Initiate_Position_FCC();			// Initiate positions
-Initiate_Velocity(); 				// Initiate velocity
+Parameters(argc, argv);			// Insert parameters
+Make_array(argc, argv);			// preallocate arrays
+Initiate_Position_FCC();		// Initiate positions
+Initiate_Velocity(); 			// Initiate velocity
 for (run = 0; run<Run; ++run){
-Update_boundaries();				// Put boxes around the middle box
-Display();					// Display parameters
-Update_force_with_boundaries_brute_force();	// Update the force between particles
-Update_velocity();				// Update the velocity
-Update_position_with_boundaries();		// Update the position
-Calculate_Kinetic_Energy();			// Calculate the kinetic energy
-Calculate_Potential_Energy();			// Calculate the potential energy
-Energy_Correction();				// -- Under construction --
+Display();				// Display parameters
+Update_boundaries();			// Put boxes around the middle box
+Update_force_brute_force();		// Update the force between particles
+Update_velocity();			// Update the velocity
+Update_position();			// Update the position
+Calculate_Kinetic_Energy();		// Calculate the kinetic energy
+Calculate_Potential_Energy();		// Calculate the potential energy
+Energy_Correction();			// -- Under construction --
 }
+cout << boxlength << " " << a << " " << cub_num << " " << endl;
 
 }
