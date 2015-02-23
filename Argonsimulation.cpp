@@ -362,11 +362,11 @@ next: id= link_list[id];
 void vel_update()
 {
 for (int m=0; m < N; m++){
-vel[0][m]= vel[0][m] + time_step*(Force[0][m]-Force_previous[0][m])*0.5;
+vel[0][m]= vel[0][m] + time_step*(Force[0][m]+Force_previous[0][m])*0.5;
 
-vel[1][m]= vel[1][m] + time_step*(Force[1][m]-Force_previous[1][m])*0.5;
+vel[1][m]= vel[1][m] + time_step*(Force[1][m]+Force_previous[1][m])*0.5;
 
-vel[2][m]= vel[2][m] + time_step*(Force[2][m]-Force_previous[2][m])*0.5;
+vel[2][m]= vel[2][m] + time_step*(Force[2][m]+Force_previous[2][m])*0.5;
 
 }
 
