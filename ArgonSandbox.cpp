@@ -360,6 +360,9 @@ Dist2 += pow(dist[d],2); 		// Distance between particles
 }
 EP += 4 * (pow(Dist2,-6)-pow(Dist2,-3))/2; // Total potential energy 
 // Note: now I devide it by 2 because the energy will be counted double because it is harder to keep track whether we are dealing with the same particle
+if (Dist2 < 0.1){
+cout << n << " " << m << endl;
+}
 } } }
 }
 
@@ -486,18 +489,17 @@ for (run = 0; run<Run; ++run){
 //--- Display values ---
 Display();				// Display parameters
 //--- Update system ---
-Update_boundaries();			// surround the box with replica boxes
 Update_force_with_boundaries_brute_force(); // Update the force between particles
 		// Alternative: Update_force_brute_force();
 Update_velocity();			// Update the velocity
 Update_position_with_boundaries();	// Update the position
+Update_boundaries();			// surround the box with replica boxes
 		// Alternative:	Update_position();
 //--- Calculate values ---
 Calculate_Kinetic_Energy();		// Calculate the kinetic energy
 			
-//Calculate_Potential_Energy_with_boundaries();
+Calculate_Potential_Energy_with_boundaries();
 	// Alternative: Calculate_Potential_Energy();
-Calculate_Potential_Energy();
 Calculate_Temperature();		// Calculate the temperature
 
 // Adjust_Temperature();		// Change the temperature of the system
