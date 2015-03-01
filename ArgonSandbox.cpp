@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<random>
+#include<unistd.h>
 
 using namespace std;
 
@@ -20,20 +21,41 @@ _________________________________________________________
 
 */
 
+char Save_Dir_Energy[] = "Energy.txt";
+char Save_Dir_Quantities[] = "Quantities.txt";
+double Temp_Goal;
+double cutoff = 3;
+
 double EK;		// Total kinetic energy
 double EP;		// Total potential energy
 double boxlength; 	// The length of the box
 double dt;		// discrete time step
 double density;		// The denisty of the box
 double a;	   	// Length of unit FCC unit cell
-double kb = 1.38066*pow(10,-23);	// Boltzmann constant
 double Temp;		// Temperature
+double Pressure;	// Pressure
+double Temp_old;
+/*
+double kb = 1.38066*pow(10,-23);// Boltzmann constant
+double sigma = 3.405;	// distance to inter-particle distance of zero in natural units (Angstrom)
+double epsilon = 119.8 *kb;	// depth of potential well in natural units "kb*T"(K)
+double tau = 1.5 * pow(10,-13); // natural time unit
+double mass = epsilon * pow(sigma,-2);
+*/
+double kb = 1;
+double sigma = 1;
+double epsilon = 1;
+double tau = 1;
+double mass = 1;
+
+
 
 int N;			// Number of particles
 int cub_num;		// Number of unit FCC boxes
 int Run; 		// Number of simulations rounds
 int run;		// Round number
 int runtemp = -1;	// Used for the display function 
+int bp;			// Number of boundary particles
 const int dim = 3;	// Number of dimension
 
 double *pos[dim];	// Position array X,Y,Z
@@ -41,7 +63,7 @@ double *posb[dim];	// Position array X,Y,X with boundaries included
 			// The size of this matrix is 27 * N
 double *vel[dim];	// Velocity array Vx,Vy,Vz
 double *force[dim];	// Force array Fx,Fy,Fz
-
+double *force_prev[dim];// Force of the last round
 
 
 /*
@@ -53,35 +75,47 @@ _________________________________________________________
 */
 
 // Initiation Functions
-void Make_array();
-void Parameters();
-void Initiate_Position_Simple();
-void Initiate_Position_Cubic(); 			// Broken
-void Initiate_Position_FCC();
-void Initiate_Velocity();
+void Make_array();					// In use
+void Parameters();					// In use
+void Initiate_Position_Simple();			
+void Initiate_Position_Cubic(); 			
+void Initiate_Position_FCC();				// In use
+void Initiate_Velocity();				// In use
+void Initiate_Force();					// In use
 
 // Updating functions
 void Update_position();
+void Update_position_with_boundaries_Plus();		// In use 
 void Update_velocity();
-void Update_position_with_boundaries();
-void Update_force_brute_force();
-void Update_force_with_boundaries_brute_force();
-void Update_boundaries();
+void Update_velocity_Plus();				// In use
+void Update_position_with_boundaries();	 		 		
+void Update_force_brute_force(); 	 		 
+void Update_force_with_boundaries_brute_force();	 	
+void Update_force_wb_bf_fast();				// In use 	
+void Update_boundaries();						
+void Update_boundaries_fast(); 				// In use	
 
 // Energy related functions
-void Calculate_Potential_Energy();
-void Calculate_Potential_Energy_with_boundaries();
-void Calculate_Kinetic_Energy();
-void Energy_Correction(); 				// Empty
+void Calculate_Potential_Energy(); 					
+void Calculate_Potential_Energy_with_boundaries(); 		
+void Calculate_Potential_Energy_with_boundaries_N();	 	
+void Calculate_Kinetic_Energy();			
+void Calculate_Kinetic_Energy_N();			// In use
+void Energy_Correction(); 				
 
 // Gas quantities
-void Calculate_Temperature();
-void Adjust_Temperature();
+void Calculate_Temperature();				// In use
+void Calculate_Pressure();				
+void Adjust_Temperature();				// In use
+
+// Combined functions
+void Calculate_Potential_Energy_and_Pressure();				
+void Calculate_PE_Pressure_fast();			// In use	
 
 // Extra functions
-void Clean_up();
-void Display();
-void Matrix_row_checker();
+void Clean_up();					// In use
+void Display();						// In use
+void Matrix_row_checker();				
 /*
 _________________________________________________________
 
@@ -111,6 +145,7 @@ for (i = 0; i< dim; i++){
 pos[i]= new double[N] (); 
 vel[i]= new double[N] (); 
 force[i]= new double[N] ();
+force_prev[i]= new double[N] ();
 posb[i] = new double[27 * N] (); // The positions will be duplicated all around the box
 } 
 // Vector preallocating
@@ -127,7 +162,9 @@ else{
 N = atoi(argv[1]);
 density = atof(argv[2]);
 Run = atoi(argv[3]); 
-dt = atof(argv[4]);
+//dt = atof(argv[4]);
+dt = 0.001;
+Temp_Goal = atof(argv[4]);
 
 // Others and calculated values
 boxlength = pow((N/density),0.3333); 	// Lengths of the box
@@ -191,6 +228,15 @@ vel[2][n] = maxwell(generator);
 }
 }
 
+// ________ Initiate particles "Previous" force ________ \\
+
+void Initiate_Force(){
+for (int n=0; n<N; ++n){
+force[0][n] = 0;
+force[1][n] = 0;
+force[2][n] = 0;
+}
+}
 /*
 _________________________________________________________
 
@@ -217,7 +263,15 @@ pos[i][n] += vel[i][n] *dt;	// x(i) = x(i-1) + v(i)*dt
 void Update_position_with_boundaries(){
 for (int n = 0; n < N; ++n){
 for (int d = 0; d < dim; ++d){		
-pos[d][n] += vel[d][n] *dt;	// x(i) = x(i-1) + v(i)*dt
+pos[d][n] += vel[d][n] *dt;	
+pos[d][n] += -boxlength * floor(pos[d][n]/boxlength); // subtracts (-1, 0 or 1) * boxlength
+}}
+}
+
+void Update_position_with_boundaries_Plus(){
+for (int n = 0; n < N; ++n){
+for (int d = 0; d < dim; ++d){		
+pos[d][n] += vel[d][n] *dt + force[d][n] * pow(dt,2) /2;	
 pos[d][n] += -boxlength * floor(pos[d][n]/boxlength); // subtracts (-1, 0 or 1) * boxlength
 }}
 }
@@ -227,8 +281,16 @@ pos[d][n] += -boxlength * floor(pos[d][n]/boxlength); // subtracts (-1, 0 or 1) 
 
 void Update_velocity(){
 for (int n = 0; n < N; ++n){
-for (int i = 0; i < dim; ++i){		
-vel[i][n] = vel[i][n] + force[i][n] *dt;// v(i) = v(i-1) + f(i)*dt
+for (int d = 0; d < dim; ++d){		
+vel[d][n] = vel[d][n] + force[d][n] *dt;// v(i) = v(i-1) + f(i)*dt
+}}
+}
+
+
+void Update_velocity_Plus(){
+for (int n = 0; n < N; ++n){
+for (int d = 0; d < dim; ++d){		
+vel[d][n] = vel[d][n] + (force[d][n] + force_prev[d][n])*dt/2 ;
 }}
 }
 
@@ -269,8 +331,10 @@ double Dist2;
 int d;
 double dist[dim]; 
 for (int n = 0; n < N; ++n){
-for (d = 0; d < dim; ++d)
+for (d = 0; d < dim; ++d){
+force_prev[d][n] = force[d][n];		// save previous force
 force[d][n] = 0; 			// Reset the force
+}
 for (int m = 0; m < 27 * N; ++m){	// Including boundaries, 27 x N particles
 if (13 * N + n != m){			// Only calculate between different 
 					// particles (mind that we are 
@@ -290,10 +354,37 @@ cout << n << " " << m << " " << Dist2 << " " << force[0][1] << endl;
 } } }
 }
 
+void Update_force_wb_bf_fast(){
+double Dist2;
+int d;
+double dist[dim]; 
+double temp_force;
+for (int n = 0; n < N; ++n){
+for (d = 0; d < dim; ++d){
+force_prev[d][n] = force[d][n];		// save previous force
+force[d][n] = 0; 			// Reset the force
+}
+for (int m = n+1; m < N + bp; ++m)
+if (m != n){	// Including boundaries, 27 x N particles
+Dist2 = 0;				// Reset "Distance squared"
+for (d = 0; d < dim; ++d){
+dist[d] = posb[d][m] - pos[d][n];	// Calculate the distance in x,y or z
+Dist2 += pow(dist[d],2);		// Calculate the distance squared
+}
+if ( pow(Dist2,0.5) < cutoff){
+for (d = 0; d < dim; ++d){		// Calculate the force
+temp_force = 24 * (-2*pow(Dist2,-7) + pow(Dist2,-4)) * dist[d];
+force[d][n] += temp_force;
+if (m < N){
+force[d][m] += -temp_force;
+} 
+} } } }
+}
+
 // ________ Update boundaries ________ \\
 
 // copy the particles in the box all around the middle box
-
+// This is a very straight forward method of doing this, restulting in slower simulation
 void Update_boundaries(){
 int b = 0;
 for (int x = -1; x < 2; ++x)
@@ -308,6 +399,33 @@ b++;
 }
 }
 
+void Update_boundaries_fast(){
+// Only add particles if neccesary only particles that are withing "cutoff" range of the box
+// copy the particles of the box
+for (int n = 0; n < N; ++n){
+posb[0][n] = pos[0][n]; 
+posb[1][n] = pos[1][n]; 
+posb[2][n] = pos[2][n]; 
+} 
+// Add boundary particles
+bp = 0;
+for (int n = 0; n < N; ++n){
+for (int x = -1; x < 2; ++x)
+for (int y = -1; y < 2; ++y)
+for (int z = -1; z < 2; ++z)
+if (x == 0 && y == 0 && z == 0){}
+else {
+if (	(abs(pos[0][n] + (-0.5 + x)* boxlength) < (0.5 * boxlength + cutoff))&&\
+	(abs(pos[1][n] + (-0.5 + y)* boxlength) < (0.5 * boxlength + cutoff))&&\
+	(abs(pos[2][n] + (-0.5 + z)* boxlength) < (0.5 * boxlength + cutoff))\
+   ){
+posb[0][N+bp] = pos[0][n] + boxlength * x; 
+posb[1][N+bp] = pos[1][n] + boxlength * y; 
+posb[2][N+bp] = pos[2][n] + boxlength * z; 
+bp++;
+} } }
+cout << bp << " " << boxlength << endl;
+}
 
 /*
 _________________________________________________________
@@ -353,7 +471,6 @@ if (13 * N + n != m){			// Only calculate between different
 					// (middle box needed)
 Dist2 =0;				// Reset distance squared
 for (int d = 0; d < dim; ++d){
-
 dist[d] = posb[d][m] - pos[d][n];	// Distance between particles in one 
 					// direction
 Dist2 += pow(dist[d],2); 		// Distance between particles
@@ -366,19 +483,112 @@ cout << n << " " << m << endl;
 } } }
 }
 
+void Calculate_Potential_Energy_with_boundaries_N(){
+double Dist2;
+double dist[dim];
+EP = 0; 				// Reset total potential energy parameter
+for (int n = 0; n < N; ++n){
+for (int m = 0; m < 27 * N; ++m){	// Compare with the array containin all parti.
+if (13 * N + n != m){			// Only calculate between different 
+					// particles (mind that we are 
+					// comparing with the boundary matrix 
+					// (middle box needed)
+Dist2 =0;				// Reset distance squared
+for (int d = 0; d < dim; ++d){
+dist[d] = posb[d][m] - pos[d][n];	// Distance between particles in one 
+					// direction
+Dist2 += pow(dist[d]/sigma,2); 	// Distance between particles
+}
+EP += epsilon * 4 * (pow(Dist2,-6)-pow(Dist2,-3))/2; // Total potential energy 
+// Note: now I devide it by 2 because the energy will be counted double because it is harder to keep track whether we are dealing with the same particle
+
+} } }
+}
+
 // ________ Calculate Kinetic Energy ________ \\
+
+void Calculate_Kinetic_Energy_N(){
+EK = 0;      				// Reset total kinetic energy parameter
+for (int n = 0; n < N; ++n)
+for (int d = 0; d < dim; ++d)
+EK += 0.5 * mass * pow(vel[d][n],2);	 // Calculate kinet energy /particle/dim
+}
 
 void Calculate_Kinetic_Energy(){
 EK = 0;      				// Reset total kinetic energy parameter
 for (int n = 0; n < N; ++n)
 for (int d = 0; d < dim; ++d)
-EK += 0.5 * pow(vel[d][n],2);	 	// Calculate kinet energy /particle/dim
+EK += 0.5 * pow((vel[d][n]*0.001)/sigma,2);	 	// Calculate kinet energy /particle/dim
 }
+
 
 // ________ Energy Correction ________ \\
 
 void Energy_Correction(){
 
+}
+
+/*
+_________________________________________________________
+
+ ------------------ Combinations --------------------- 
+_________________________________________________________
+
+*/
+
+void Calculate_Potential_Energy_and_Pressure(){
+// This is a combination of Calculate_Potential_Energy_with_boundaries_N and Calculate_Pressure
+
+double Dist2;
+double dist[dim];
+Pressure = density * Temp;
+EP = 0; 				// Reset total potential energy parameter
+for (int n = 0; n < N; ++n){
+for (int m = 0; m < 27 * N; ++m){	// Compare with the array containin all parti.
+if (13 * N + n != m){			// Only calculate between different 
+					// particles (mind that we are 
+					// comparing with the boundary matrix 
+					// (middle box needed)
+Dist2 =0;				// Reset distance squared
+for (int d = 0; d < dim; ++d){
+dist[d] = posb[d][m] - pos[d][n];	// Distance between particles in one 
+					// direction
+Dist2 += pow(dist[d]/sigma,2); 	// Distance between particles
+}
+EP += epsilon * 4 * (pow(Dist2,-6)-pow(Dist2,-3))/2; // Total potential energy 
+// Note: now I devide it by 2 because the energy will be counted double because it is harder to keep track whether we are dealing with the same particle
+if (13 * N > m	|| 13 * N + n > m){
+for (int d = 0; d < dim; ++d){		// Calculate the force
+Pressure += 24 * (-2*pow(Dist2,-6) + pow(Dist2,-3)) ;
+} } } } }
+}
+
+void Calculate_PE_Pressure_fast(){
+// This is a combination of Calculate_Potential_Energy_with_boundaries_N and Calculate_Pressure
+
+double Dist2;
+double dist[dim];
+Pressure = density * Temp;
+EP = 0; 				// Reset total potential energy parameter
+for (int n = 0; n < N; ++n){
+for (int m = 0; m < N + bp; ++m){	// Compare with the array containin all parti.
+if (n != m){				// Only calculate between different 
+					// particles (mind that we are 
+					// comparing with the boundary matrix 
+					// (middle box needed)
+Dist2 =0;				// Reset distance squared
+for (int d = 0; d < dim; ++d){
+dist[d] = posb[d][m] - pos[d][n];	// Distance between particles in one 
+					// direction
+Dist2 += pow(dist[d]/sigma,2); 	// Distance between particles
+}
+if ( pow(Dist2,0.5) < cutoff){
+EP += epsilon * 4 * (pow(Dist2,-6)-pow(Dist2,-3))/2; // Total potential energy 
+// Note: now I devide it by 2 because the energy will be counted double because it is harder to keep track whether we are dealing with the same particle
+if (m > n){
+for (int d = 0; d < dim; ++d){		// Calculate the force
+Pressure += 24 * (-2*pow(Dist2,-6) + pow(Dist2,-3)) ;
+} } } } } }
 }
 
 /*
@@ -401,15 +611,36 @@ Temp = (2 * EK) / (kb * N * 3);
 // Note: The units of the system are computations units and not natural units
 
 void Adjust_Temperature(){
-Calculate_Temperature();	// Use the current temperature
-double Temp_Goal = 1;
-double avg_vel;
-avg_vel = pow((2 * EK) / N,0.5);
+// Calculate_Temperature();	// Use the current temperature
+Temp_old = Temp;
 for (int n = 0; n < N; ++n){
 for (int i = 0; i < dim; ++i){		
-vel[i][n] = (Temp_Goal * vel[i][n]) / avg_vel;
+vel[i][n] = vel[i][n] * pow(Temp_Goal / Temp,0.5);
 } }
 }
+
+// ________ Calculate the pressure ________ \\
+
+void Calculate_Pressure(){
+double Dist2;
+double dist[dim];
+int d;
+Pressure = density * Temp;
+for (int n = 0; n < N-1; ++n)
+for (int m = 0; m < 27 * N; ++m)		
+if (13 * N > m	|| 13 * N + n > m){	// Only calculate for i and i<j
+
+Dist2 = 0;				// Reset "Distance squared"
+for (d = 0; d < dim; ++d){
+dist[d] = posb[d][m] - pos[d][n];	// Calculate the distance in x,y or z
+Dist2 += pow(dist[d],2);		// Calculate the distance squared
+}
+for (d = 0; d < dim; ++d){		// Calculate the force
+Pressure += 24 * (-2*pow(Dist2,-6) + pow(Dist2,-3)) ;
+} }
+}
+
+
 
 /*
 _________________________________________________________
@@ -449,7 +680,7 @@ for (int n = 0; n < 27 * N; ++n){
 // cout << n << "." << run << " X: " << posb[0][n] << " " << "Y: " << posb[1][n] << " " << "Z: " << posb[2][n] << " " << endl;
 }
 cout << "EK: " << EK << " EP: " << EP << " EP + EK: " << EP+EK << endl;
-// cout << Temp << endl;
+// cout << Temp << " " << Pressure << endl;
 } 
 }
 
@@ -465,6 +696,41 @@ if (posb[2][n] == posb[2][m])
 cout << n << " " << m << endl;
 }
 
+// ________ Print data ________ \\
+
+class graphdata
+{
+int particles;
+double *xdata=NULL;
+double *ydata=NULL;
+double *zdata=NULL;
+public:
+graphdata (double *xdata, int particles) : xdata(xdata), particles(particles) {}
+graphdata (double *xdata, double *ydata, int particles): xdata(xdata), ydata(ydata), particles(particles) {}
+graphdata (double *xdata, double *ydata, double *zdata, int particles): xdata(xdata), ydata(ydata), zdata(zdata), particles(particles) {}
+void printtofile(char filename[]);
+};
+void graphdata::printtofile(char filename[])
+{
+FILE *f;
+f=fopen(filename, "w");
+if (xdata != NULL && ydata == NULL)
+{
+for (int i =0; i < particles; i++)
+fprintf(f, "%f\n",xdata[i]);
+}
+if (xdata != NULL && ydata != NULL && zdata ==NULL)
+{
+for (int i =0; i < particles; i++)
+fprintf(f, "%f %f\n",xdata[i], ydata[i]);
+}
+if (xdata != NULL && ydata != NULL && zdata !=NULL)
+{
+for (int i =0; i < particles; i++)
+fprintf(f, "%f %f %f\n",xdata[i], ydata[i], zdata[i]);
+}
+}
+
 /*
 _________________________________________________________
 
@@ -474,37 +740,59 @@ _________________________________________________________
 */
 
 int main(int argc, char*argv[]){
+
 //--- Read and make variables ---
 Parameters(argc, argv);			// Insert parameters
 Make_array(argc, argv);			// preallocate arrays
+double EP_data[Run];
+double EK_data[Run];
+double Pressure_data[Run];
+double Temp_data[Run];
+double Temp_dif[Run];
+
 //--- Initiate ---
 Initiate_Position_FCC();		// Initiate positions
 Initiate_Velocity(); 			// Initiate velocity
+Initiate_Force();			// Initiate (indirectly) the previous  
+					// forceses by initializing the force as 0
 //--- Calculate values with initial conditions ---
-Update_boundaries();			// surround the box with replica boxes
-Calculate_Kinetic_Energy();		// Calculate the kinetic energy
-Calculate_Potential_Energy_with_boundaries(); // Calculate the potential energy
-		// Alternative: Calculate_Potential_Energy();
+Update_boundaries_fast();		// surround the box with replica boxes
+Calculate_Kinetic_Energy_N();		// Calculate the kinetic energy
+Calculate_PE_Pressure_fast();
 for (run = 0; run<Run; ++run){		
 //--- Display values ---
 Display();				// Display parameters
 //--- Update system ---
-Update_force_with_boundaries_brute_force(); // Update the force between particles
-		// Alternative: Update_force_brute_force();
-Update_velocity();			// Update the velocity
-Update_position_with_boundaries();	// Update the position
-Update_boundaries();			// surround the box with replica boxes
-		// Alternative:	Update_position();
+Update_force_wb_bf_fast();
+Update_velocity_Plus();			// Update the velocity
+Update_position_with_boundaries_Plus();	// Update the position
+Update_boundaries_fast();		// surround the box with replica boxes
+// cout << "bp: " << bp << endl;
 //--- Calculate values ---
-Calculate_Kinetic_Energy();		// Calculate the kinetic energy
-			
-Calculate_Potential_Energy_with_boundaries();
-	// Alternative: Calculate_Potential_Energy();
+Calculate_Kinetic_Energy_N();		// Calculate the kinetic energy		
+Calculate_PE_Pressure_fast();
 Calculate_Temperature();		// Calculate the temperature
 
-// Adjust_Temperature();		// Change the temperature of the system
+//--- Save data ---
+EK_data[run] = EK;
+EP_data[run] = EP;
+Pressure_data[run] = Pressure;
+Temp_data[run] = Temp;
+Temp_dif[run] = Temp - Temp_old;
+//--- Adjust system --- 
+//if ((run)%(1) == 0){
+Adjust_Temperature();		// Change the temperature of the system
+//cout << run << endl;
+//}
+//if ((run)%5 == 0){	
+//sleep(4);			// prevents my pc from shutting down...
+//}
 }
-
-
+//--- Print data ---
+graphdata Energy(EP_data, EK_data,Run);
+Energy.printtofile(Save_Dir_Energy);
+graphdata Quantities(Temp_data,Pressure_data,Temp_dif,Run);
+Quantities.printtofile(Save_Dir_Quantities);
+//--- Clean memory ---
 Clean_up();
 }
