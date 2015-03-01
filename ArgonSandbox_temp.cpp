@@ -338,7 +338,7 @@ EP += epsilon * 4 * (pow(Dist2,-6)-pow(Dist2,-3))/2; // Total potential energy
 // Note: now I devide it by 2 because the energy will be counted double because it is harder to keep track whether we are dealing with the same particle
 if (m > n){
 for (int d = 0; d < dim; ++d){		// Calculate the force
-Pressure += 24 * (-2*pow(Dist2,-6) + pow(Dist2,-3)) ;
+Pressure += - density * 4 * (-2*pow(Dist2,-6) + pow(Dist2,-3)) / N;
 } } } } } }
 }
 
@@ -363,9 +363,7 @@ Temp = (2 * EK) / (kb * N * 3);
 
 void Adjust_Temperature(){
 // Calculate_Temperature();	// Use the current temperature
-
 Temp_old = Temp;
-
 for (int n = 0; n < N; ++n){
 for (int i = 0; i < dim; ++i){		
 vel[i][n] = vel[i][n] * pow(Temp_Goal / Temp,0.5);
