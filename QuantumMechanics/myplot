@@ -1,0 +1,20 @@
+#!/bin/sh 
+gnuplot << EOF
+set terminal pngcairo size 640,480 enhanced font 'Verdana,10'
+set output '2dplot.png'
+set border linewidth 1.5
+# line properties
+set style line 1 linecolor rgb "blue" linetype 1 linewidth 3
+set style line 2 linecolor rgb "red" linetype 1 linewidth 2 
+# axes properties
+set xlabel font "Verdana,14" 
+set xlabel font "Verdana,14" 
+set xtics font "Verdana,14"
+set ytics font "Verdana,14"
+set xlabel 'x'
+set ylabel 'y'
+
+#plotting
+plot "$1" $2 $3 with lines 
+EOF
+
