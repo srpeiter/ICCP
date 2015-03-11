@@ -1,4 +1,4 @@
-
+#include<random>
 #include"plotting.h"
 
 using namespace std;

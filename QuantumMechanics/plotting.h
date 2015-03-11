@@ -1,10 +1,10 @@
+#ifndef PLOTTING_H
+#define PLOTTING_H
+
 #include<iostream>
 #include<stdio.h>
 #include<stdlib.h>
-#include<random>
 
-#ifndef PLOTTING_H
-#define PLOTTING_H
 
 
 class mydata
