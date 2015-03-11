@@ -1,12 +1,13 @@
-#!/bin/sh 
-gnuplot << EOF
-set terminal pngcairo size 640,480 enhanced font 'Verdana,10'
-set output '2dplot.png'
+#!/bin/gnuplot 
+#gnuplot << EOF
+#set terminal pngcairo size 640,480 enhanced font 'Verdana,10'
+#set output '2dplot.png'
 set border linewidth 1.5
 # line properties
 set style line 1 linecolor rgb "blue" linetype 1 linewidth 3
 set style line 2 linecolor rgb "red" linetype 1 linewidth 2 
 # axes properties
+set autoscale
 set xlabel font "Verdana,14" 
 set xlabel font "Verdana,14" 
 set xtics font "Verdana,14"
@@ -15,6 +16,12 @@ set xlabel 'x'
 set ylabel 'y'
 
 #plotting
-plot "$1" $2 $3 with lines 
-EOF
+#set style histogram rowstacked gap 0
+#set style fill solid 0.5 border lt -1
+#plot "$1" smooth freq with boxes
+plot "test.dat" using 1:2 with lines notitle 
+
+
+pause -1
+#EOF
 

@@ -1,0 +1,32 @@
+#!/bin/gnuplot 
+#gnuplot << EOF
+#set terminal pngcairo size 640,480 enhanced font 'Verdana,10'
+#set output '2dplot.png'
+set border linewidth 1.5
+# line properties
+#set style line 1 linecolor rgb "blue" linetype 1 linewidth 3
+#set style line 2 linecolor rgb "red" linetype 1 linewidth 2 
+# axes properties
+set autoscale
+set xlabel font "Verdana,14" 
+set xlabel font "Verdana,14" 
+set xtics font "Verdana,14"
+set ytics font "Verdana,14"
+set xlabel 'x'
+set ylabel 'y'
+
+
+
+
+n=100 #number of intervals
+max=1. #max value
+min=-1. #min value
+width=(max-min)/n #interval width
+#function used to map a value to the intervals
+hist(x,width)=width*floor(x/width)+width/2.0
+set boxwidth width*0.9
+
+#count and plot
+plot "test.dat" u (hist($1,width)):(1.0) smooth freq w boxes lc rgb"green" notitle
+
+pause -1

@@ -1,0 +1,26 @@
+#!/bin/gnuplot 
+#gnuplot << EOF
+#set terminal pngcairo size 640,480 enhanced font 'Verdana,10'
+#set output '2dplot.png'
+set border linewidth 1.5
+set border 4095
+# line properties
+set style line 2 lc rgb 'red' pt 7 ps 0.7
+# axes properties
+set autoscale
+set xlabel font "Verdana,14" 
+set xlabel font "Verdana,14"
+ set zlabel font "Verdana,14"
+set grid 
+set xtics font "Verdana,14"
+set ytics font "Verdana,14"
+set ztics font "Verdana,14"
+
+set xlabel 'x'
+set ylabel 'y'
+set zlabel 'z'
+
+splot 'test.dat'  using 1:2:3 with points ls 2 notitle 
+pause -1 
+#EOF
+
