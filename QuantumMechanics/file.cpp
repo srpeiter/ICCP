@@ -21,19 +21,17 @@ void maketestdata()
 
 	}
 
-
-
 }
 
 int main()
 {
 maketestdata();
 
-mydata Testdata(xmeas,N);
-Testdata.printtofile("test.dat");
+mydata Testdata(xmeas,ymeas,N);
+//Testdata.printtofile("test.dat");
 
-//Testdata.plot2d();
-Testdata.histplot();
+Testdata.plot2d();
+//Testdata.histplot();
 //Testdata.plot3d();
 return 0;
 

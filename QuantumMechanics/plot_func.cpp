@@ -25,7 +25,7 @@ fprintf(f, "%f %f %f\n",xdata[i], ydata[i], zdata[i]);
 void mydata::plot2d()
 {
 printtofile("test.dat");
-system ("./myplot");
+system ("./plot2d");
 
 }
 
