@@ -1,6 +1,6 @@
 #include"plotting.h"
 
-void mydata::printtofile(char filename[])
+void mydata::printtofile(const char filename[])
 {
 FILE *f;
 f=fopen(filename, "w");

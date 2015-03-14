@@ -123,7 +123,7 @@ double energy();
 
 void norm();
 
-double final_energy();
+double comp_integral();
 
 };
 
@@ -178,9 +178,10 @@ wave_sq += temp_wave * temp_wave;
 }
 norm_wave = (1.0/N)* wave_sq;
 fprintf(stdout, "the norm of the wave_func is %f\n",norm_wave);
+
 }
 
-double observable::final_energy()
+double observable::comp_integral()
 {
 double omega, wave_sq, epsil, fin_energy, av_energy;
 
@@ -216,7 +217,7 @@ observable energy_part(electron, 100);
 double energy=energy_part.energy();
 
 energy_part.norm();
-double en= energy_part.final_energy();
+double en= energy_part.comp_integral();
 cout << "average energy is "<< en<<endl;
 return 0;
 

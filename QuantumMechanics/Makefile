@@ -2,25 +2,28 @@ CC = g++ -std=c++11
 
 DEBUG = -g
 
-CFLAGS = -c $(DEBUG)
+CFLAGS = -c $(DEBUG) 
 
 LFLAGS = $(DEBUG)
+
+OPTIMAZATION=  -O3 -fopenmp 
 
 OBJS = file.o plot_func.o
 
 PROGRAM_NAME = program
 
 program: $(OBJS)
-	$(CC) $(LFLAGS) $(OBJS) -o $(PROGRAM_NAME)
+	$(CC)  $(LFLAGS) $(OBJS) -o $(PROGRAM_NAME)
 
 file.o: file.cpp plotting.h
-	$(CC) $(CFLAGS) file.cpp 
+	$(CC) $(OPTIMAZATION) $(CFLAGS) file.cpp 
 
 plot_func.o:plot_func.cpp plotting.h
-	$(CC) $(CFLAGS) plot_func.cpp
+	$(CC) $(OPTIMAZATION) $(CFLAGS) plot_func.cpp
 
 clean:
-	\rm *.o  program
+	\rm *.o  $(PROGRAM_NAME)
+
 
 run :  $(PROGRAM_NAME)
 	./$(PROGRAM_NAME)

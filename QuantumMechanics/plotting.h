@@ -21,7 +21,7 @@ mydata (double *xdata, double *ydata, int particles): xdata(xdata), ydata(ydata)
 mydata (double *xdata, double *ydata, double *zdata, int particles): xdata(xdata), ydata(ydata), zdata(zdata), particles(particles) {}
 
 
-void printtofile(char filename[]);
+void printtofile( const char filename[]);
 void plot2d();
 void plot3d();
 void histplot();
