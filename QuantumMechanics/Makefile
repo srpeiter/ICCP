@@ -8,18 +8,27 @@ LFLAGS = $(DEBUG)
 
 OPTIMAZATION=  -O3 -fopenmp 
 
-OBJS = file.o plot_func.o
+OBJS = energy_comp.o particle_func.o plot_func.o test.o
 
 PROGRAM_NAME = program
 
 program: $(OBJS)
 	$(CC)  $(LFLAGS) $(OBJS) -o $(PROGRAM_NAME)
 
-file.o: file.cpp plotting.h
-	$(CC) $(OPTIMAZATION) $(CFLAGS) file.cpp 
+test.o: test.cpp allheaders.h
+	$(CC) $(OPTIMAZATION) $(CFLAGS) test.cpp 
 
-plot_func.o:plot_func.cpp plotting.h
+
+
+energy_comp.o: energy_comp.cpp allheaders.h
+	$(CC) $(OPTIMAZATION) $(CFLAGS) energy_comp.cpp 
+
+plot_func.o:plot_func.cpp allheaders.h
 	$(CC) $(OPTIMAZATION) $(CFLAGS) plot_func.cpp
+
+particle_func.o:particle_func.cpp allheaders.h
+	$(CC) $(OPTIMAZATION) $(CFLAGS) particle_func.cpp
+
 
 clean:
 	\rm *.o  $(PROGRAM_NAME)

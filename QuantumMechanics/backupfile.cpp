@@ -19,7 +19,7 @@ double r1[3];
 double r2[3];
 double phi_1L, phi_1R, phi_2L, phi_2R, r_12;
 double phi_1, phi_2, xii , wave_func;
-double alpha=2, a=1 , beta , s;
+double alpha=2, a=0.7 , beta , s;
 
 protected:
 double r_1L, r_1R, r_2L, r_2R;
@@ -28,7 +28,7 @@ double r_12vec[3], r_1Lvec[3], r_1Rvec[3], r_2Lvec[3], r_2Rvec[3];
 
 public:
 particle( double position[][3], double beta, double s) :  beta(beta), s(s)
-{ r1[0] = position[0][0];
+{ r1[0] = position[0][0];		//initializing positions
   r1[1] = position[0][1];
   r1[2] = position[0][2]; 
   r2[0] = position[1][0];
@@ -50,7 +50,7 @@ double wavefunction();	// total wavefunction
 
 };
 
-void particle::initialize()
+void particle::initialize()	// doing the precomputation for the wavefunction and energy
 {
 for (int j = 0 ; j < 3 ; j++)
 {
@@ -99,7 +99,7 @@ void particle::xi()
  xii=exp(r_12/ (alpha*(1+beta*r_12)));
 }
 
-double particle::wavefunction()
+double particle::wavefunction()	// calculating the wavefunction with phi1, phi2 and xi
 {
 initialize();
 phi1();
@@ -109,7 +109,8 @@ return wave_func= phi_1*phi_2*xii;
 }
 
 
-class observable
+class observable //this class is used for calculating energy integral with montecarlo integration
+// This class is a friend of class particle
 {
 private:
 particle temp;
@@ -124,6 +125,8 @@ double energy();
 void norm();
 
 double comp_integral();
+
+void metropolis_walker();
 
 };
 
@@ -166,13 +169,7 @@ double wave_sq=0, temp_wave;
 
 for (int j=0; j < N ; j++){
 
-temp.r1[0]=distribution(generator);
-temp.r1[1]=distribution(generator);
-temp.r1[2]=distribution(generator);
-temp.r2[0]=distribution(generator);
-temp.r2[1]=distribution(generator);
-temp.r2[2]=distribution(generator);
-
+metropolis_walker();
 temp_wave= temp.wavefunction();
 wave_sq += temp_wave * temp_wave;
 }
@@ -188,12 +185,8 @@ double omega, wave_sq, epsil, fin_energy, av_energy;
 norm();
 for (int j=0; j < N ; j++)
 {
-temp.r1[0]=distribution(generator);
-temp.r1[1]=distribution(generator);
-temp.r1[2]=distribution(generator);
-temp.r2[0]=distribution(generator);
-temp.r2[1]=distribution(generator);
-temp.r2[2]=distribution(generator);
+
+metropolis_walker();
 
 wave_sq= temp.wavefunction();
 omega= wave_sq*wave_sq/(norm_wave);
@@ -204,15 +197,54 @@ fin_energy += omega*epsil;
 return av_energy = (1.0/N)*fin_energy;
 }
 
+
+void observable::metropolis_walker() // this is the implementation of the a montecarlo method : the metropolis walker
+{
+double wave_now, wave_next, condition, rand_num;
+wave_now=temp.wavefunction();
+condition = 0;
+
+temp.r1[0]=distribution(generator);
+temp.r1[1]=distribution(generator);
+temp.r1[2]=distribution(generator);
+temp.r2[0]=distribution(generator);
+temp.r2[1]=distribution(generator);
+temp.r2[2]=distribution(generator);
+
+wave_next=temp.wavefunction();
+
+condition= (wave_next*wave_next)/(wave_now*wave_now);
+
+if (condition <= 1)
+do {
+rand_num= distribution(generator);
+temp.r1[0]=distribution(generator);
+temp.r1[1]=distribution(generator);
+temp.r1[2]=distribution(generator);
+temp.r2[0]=distribution(generator);
+temp.r2[1]=distribution(generator);
+temp.r2[2]=distribution(generator);
+
+wave_next=temp.wavefunction();
+
+condition= (wave_next*wave_next)/(wave_now*wave_now);
+
+
+
+} while (condition < rand_num);
+
+}
+
+
 int main(void)
 
 {
- double pos[2][3]= {{0.3,0.2,0.5},{0.5,0.1,0.1}};
+ double pos[2][3]= {{0.1,0.23,0.1},{0.5,0.1,0.1}};
 
-particle electron(pos,0.3, 1.2);
+particle electron(pos,0.9, 1.2);
 
 //double wave=electron.wavefunction();
-observable energy_part(electron, 100);
+observable energy_part(electron, 10000);
 //fprintf(stdout, "the wavefunction is %f \n", wave);
 double energy=energy_part.energy();
 
@@ -228,4 +260,5 @@ return 0;
 //double beta= 0.3;
 //double r1[3]= {0.3, 0.2, 0.5};
 //double r2[3]= {0.5 ,0.1 , 0.1};
+
 
