@@ -7,13 +7,14 @@ class particle
 friend class observable; 
  // defining a friend class so to have acces to class particles
 
+
 private:		// all variable needed to do computations
 
 double r1[3];
 double r2[3];
 double phi_1L, phi_1R, phi_2L, phi_2R, r_12;
 double phi_1, phi_2, xii , wave_func;
-double alpha=2, a=0.7 , beta , s;
+double alpha=2, a , beta , s;
 
 protected:
 double r_1L, r_1R, r_2L, r_2R;
@@ -28,10 +29,12 @@ particle( double position[][3], double beta, double s) :  beta(beta), s(s)
   r2[0] = position[1][0];
   r2[1] = position[1][1];
   r2[2] = position[1][2];
+
 }
 
 ~particle () {};
 
+void get_a(double& s, double criteria);
 void initialize();	// initialize everything
 void phi1();		
 

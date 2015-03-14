@@ -7,7 +7,7 @@ int main(void)
 {
  double pos[2][3]= {{0.1,0.23,0.1},{0.5,0.1,0.1}};
 
-particle electron(pos,0.9, 1.2);
+particle electron(pos,2.1, 1.2);
 
 //double wave=electron.wavefunction();
 observable energy_part(electron, 10000);

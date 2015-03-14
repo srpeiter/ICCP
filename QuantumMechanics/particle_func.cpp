@@ -1,8 +1,25 @@
 #include"allheaders.h"
 
 
+void particle::get_a(double& s, double criteria)
+{
+	double l = 0.5;
+	double r = 1;
+        a = 0.75;
+	double a_old = 0;
+
+	while (std::abs(a_old-a) > criteria){
+		(a*log(a/(1-a))>s) ? (r=a) : (l=a);	
+		a_old = a;	
+		a = (r+l)/2;
+	}
+}
+
+
 void particle::initialize()	// doing the precomputation for the wavefunction and energy
 {
+get_a(s, 0.01);	//compute a first
+
 for (int j = 0 ; j < 3 ; j++)
 {
 
