@@ -18,7 +18,7 @@ void particle::get_a(double& s, double criteria)
 
 void particle::initialize()	// doing the precomputation for the wavefunction and energy
 {
-get_a(s, 0.01);	//compute a first
+get_a(s, 0.1);	//compute a first
 
 for (int j = 0 ; j < 3 ; j++)
 {

@@ -56,25 +56,6 @@ fprintf(stdout, "the norm of the wave_func is %f\n",norm_wave);
 
 }
 
-double observable::comp_integral()
-{
-double omega, wave_sq, epsil, fin_energy, av_energy;
-
-norm();
-for (int j=0; j < N ; j++)
-{
-
-metropolis_walker();
-
-wave_sq= temp.wavefunction();
-omega= wave_sq*wave_sq/(norm_wave);
-epsil= energy();
-
-fin_energy += omega*epsil;
-}
-return av_energy = (1.0/N)*fin_energy;
-}
-
 
 void observable::metropolis_walker() // this is the implementation of the a montecarlo method : the metropolis walker
 {
@@ -113,5 +94,25 @@ condition= (wave_next*wave_next)/(wave_now*wave_now);
 
 }
 
+
+double observable::comp_integral(double inp_beta, double inp_s)
+{
+double omega, wave_sq, epsil, fin_energy, av_energy;
+temp.s=inp_s;
+temp.beta=inp_beta;
+norm();
+for (int j=0; j < N ; j++)
+{
+
+metropolis_walker();
+
+wave_sq= temp.wavefunction();
+omega= wave_sq*wave_sq/(norm_wave);
+epsil= energy();
+
+fin_energy += omega*epsil;
+}
+return av_energy = (1.0/N)*fin_energy;
+}
 
 

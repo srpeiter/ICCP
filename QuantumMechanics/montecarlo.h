@@ -50,6 +50,9 @@ double wavefunction();	// total wavefunction
 class observable //this class is used for calculating energy integral with montecarlo integration
 // This class is a friend of class particle
 {
+// minimize is a friend function of class observable
+friend double* minimize(observable& obj, double x0, double x1, double stop_prec, double inp_s );
+
 private:
 particle temp;
 double norm_wave=0;
@@ -62,10 +65,9 @@ double energy();
 
 void norm();
 
-double comp_integral();
-
 void metropolis_walker();
 
+double comp_integral(double inp_beta, double inp_s);
 };
 
 

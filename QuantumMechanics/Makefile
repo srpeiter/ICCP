@@ -8,7 +8,7 @@ LFLAGS = $(DEBUG)
 
 OPTIMAZATION=  -O3 -fopenmp 
 
-OBJS = energy_comp.o particle_func.o plot_func.o test.o
+OBJS = energy_comp.o particle_func.o plot_func.o minimize.o test.o
 
 PROGRAM_NAME = program
 
@@ -28,6 +28,10 @@ plot_func.o:plot_func.cpp allheaders.h
 
 particle_func.o:particle_func.cpp allheaders.h
 	$(CC) $(OPTIMAZATION) $(CFLAGS) particle_func.cpp
+
+minimize.o:minimize.cpp montecarlo.h
+	$(CC) $(OPTIMAZATION) $(CFLAGS) minimize.cpp
+
 
 
 clean:
