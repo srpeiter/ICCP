@@ -1,4 +1,4 @@
-CC = g++ -std=c++11
+CC = g++ 
 
 DEBUG = -g
 
@@ -8,7 +8,7 @@ LFLAGS = $(DEBUG)
 
 OPTIMAZATION=  -O3 -fopenmp 
 
-OBJS = energy_comp.o particle_func.o plot_func.o minimize.o test.o
+OBJS = energy_comp.o particle_func.o plot_func.o minimize.o generate_metropolis.o test.o
 
 PROGRAM_NAME = program
 
@@ -16,21 +16,25 @@ program: $(OBJS)
 	$(CC)  $(LFLAGS) $(OBJS) -o $(PROGRAM_NAME)
 
 test.o: test.cpp allheaders.h
-	$(CC) $(OPTIMAZATION) $(CFLAGS) test.cpp 
+	$(CC) $(CFLAGS) test.cpp 
 
 
 
 energy_comp.o: energy_comp.cpp allheaders.h
-	$(CC) $(OPTIMAZATION) $(CFLAGS) energy_comp.cpp 
+	$(CC)  $(CFLAGS) energy_comp.cpp 
 
 plot_func.o:plot_func.cpp allheaders.h
-	$(CC) $(OPTIMAZATION) $(CFLAGS) plot_func.cpp
+	$(CC) $(CFLAGS) plot_func.cpp
 
 particle_func.o:particle_func.cpp allheaders.h
-	$(CC) $(OPTIMAZATION) $(CFLAGS) particle_func.cpp
+	$(CC) $(CFLAGS) particle_func.cpp
 
 minimize.o:minimize.cpp montecarlo.h
-	$(CC) $(OPTIMAZATION) $(CFLAGS) minimize.cpp
+	$(CC) $(CFLAGS) minimize.cpp
+
+generate_metropolis.o:generate_metropolis.cpp montecarlo.h
+	$(CC) $(CFLAGS) generate_metropolis.cpp
+
 
 
 

@@ -1,10 +1,5 @@
 #include"allheaders.h"
-#include<chrono>
-
-unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-std::default_random_engine generator(seed);
-std::uniform_real_distribution<double> distribution(-1.0,1.0);
-
+#include<fstream>
 // this whole code is based on fixing s and varying beta to find minimum.
 
 
@@ -45,9 +40,11 @@ void observable::norm()
 {//here we normalize the wavefunction only once per s and beta
 double wave_sq=0, temp_wave;
 
-for (int j=0; j < N ; j++){
+std:: ifstream infile("metropol.dat");
 
-metropolis_walker();
+while (infile >> temp.r1[0] >> temp.r1[1] >> temp.r1[2] >> temp.r2[0] >> temp.r2[1] >> temp.r2[2])
+{
+
 temp_wave= temp.wavefunction();
 wave_sq += temp_wave * temp_wave;
 }
@@ -57,36 +54,7 @@ fprintf(stdout, "the norm of the wave_func is %f\n",norm_wave);
 }
 
 
-void observable::metropolis_walker() // this is the implementation of the a montecarlo method : the metropolis walker
-{
-	double wave_now, wave_next, condition;
-	double r_old[6];
-	wave_now=temp.wavefunction();
-	condition = 0;
-	double rand_num= (distribution(generator) + 1.0)/2.0;
 
-	r_old[0]=temp.r1[0];
-	r_old[1]=temp.r1[1];
-	r_old[2]=temp.r1[2];
-	r_old[3]=temp.r2[0];
-	r_old[4]=temp.r2[1];
-	r_old[5]=temp.r2[2];
-
-
-	do{
-		temp.r1[0]=r_old[0]+0.3*distribution(generator);
-		temp.r1[1]=r_old[1]+0.3*distribution(generator);
-		temp.r1[2]=r_old[2]+0.3*distribution(generator);
-		temp.r2[0]=r_old[3]+0.3*distribution(generator);
-		temp.r2[1]=r_old[4]+0.3*distribution(generator);
-		temp.r2[2]=r_old[5]+0.3*distribution(generator);
-
-		wave_next=temp.wavefunction();
-		condition=(wave_next*wave_next)/(wave_now*wave_now) ;
-
-	} while ( condition < rand_num);
-
-}
 
 
 double observable::comp_integral(double inp_beta, double inp_s)
@@ -94,22 +62,24 @@ double observable::comp_integral(double inp_beta, double inp_s)
 double omega, wave_sq, epsil, fin_energy, av_energy;
 temp.s=inp_s;
 temp.beta=inp_beta;
+double stepsize=0.1;
 int relax=10000;
+temp.generate_metropolis(stepsize);
 norm();
 
-for (int j=0; j < N ; j++)
-{
+std:: ifstream infile("metropol.dat");
 
-metropolis_walker();
+while (infile >> temp.r1[0] >> temp.r1[1] >> temp.r1[2] >> temp.r2[0] >> temp.r2[1] >> temp.r2[2])
+{
 
 wave_sq= temp.wavefunction();
 omega= wave_sq*wave_sq/(norm_wave);
 epsil= energy();
 
-if (j > relax)
+
 fin_energy += omega*epsil;
 }
-return av_energy = (1.0/(N-relax))*fin_energy;
+return av_energy = (1.0/(N))*fin_energy;
 }
 
 
