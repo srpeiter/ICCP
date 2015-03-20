@@ -7,7 +7,7 @@
 double* minimize(observable& obj,double x0, double x1, double stop_prec,double s_inp)
 {
 static double output[2];
-double eps = x1/1000.0;
+double eps = x1/100.0;
 double x_old = x0;
 
 double f_old = obj.comp_integral(x0,s_inp);
