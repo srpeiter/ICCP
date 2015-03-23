@@ -10,8 +10,8 @@ friend class observable;
 
 private:		// all variable needed to do computations
 
-double r1[3],R1[3] ={0};
-double r2[3],R2[3] = {0};
+double r1[3],R1[3];
+double r2[3],R2[3];
 double r_12;
 double phi_1, phi_2, xii , wave_func;
 double alpha, a , beta , s;
