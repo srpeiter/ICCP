@@ -10,38 +10,15 @@ friend class observable;
 
 private:		// all variable needed to do computations
 
-double r1[3];
-double r2[3];
-double phi_1L, phi_1R, phi_2L, phi_2R, r_12;
-double phi_1, phi_2, xii , wave_func;
-double alpha, a , beta , s;
+double x, a;
 int N;
 
 protected:
-double r_1L, r_1R, r_2L, r_2R;
-double r_12vec[3], r_1Lvec[3], r_1Rvec[3], r_2Lvec[3], r_2Rvec[3];
-
 
 public:
-particle( double position[][3], double beta, double s, int N) :  beta(beta), s(s), N(N)
-{ r1[0] = position[0][0];		//initializing positions
-  r1[1] = position[0][1];
-  r1[2] = position[0][2]; 
-  r2[0] = position[1][0];
-  r2[1] = position[1][1];
-  r2[2] = position[1][2];
-  alpha=2;
-}
+particle( double x, double a, int N) :  x(x), a(a), N(N) {}
 
 ~particle () {};
-
-void get_a(double& s, double criteria);
-void initialize();	// initialize everything
-void phi1();		
-
-void  phi2();
-
-void xi();
 
 double wavefunction();	// total wavefunction
 
@@ -55,23 +32,21 @@ class observable //this class is used for calculating energy integral with monte
 // This class is a friend of class particle
 {
 // minimize is a friend function of class observable
-friend double* minimize(observable& obj, double x0, double x1, double stop_prec, double inp_s );
+friend double* minimize(observable& obj, double a0, double a1, double stop_prec);
 
 private:
 particle temp;
-double norm_wave;
-int N;
 
 public:
-observable(particle& temp) : temp(temp) { norm_wave=0;}
+observable(particle& temp) : temp(temp) {}
 
 double energy();	
 
-void norm();
+
 
 void metropolis_walker();
 
-double comp_integral(double inp_beta, double inp_s);
+double comp_integral(double a_inp);
 };
 
 

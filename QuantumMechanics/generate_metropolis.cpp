@@ -19,7 +19,7 @@ srand(time(NULL));
 
 FILE *pf;
 double wave_now, wave_next, condition, rand_num,range;
-double r_old[6];
+double x_old;
 range=(0.5*RAND_MAX);
 
 pf = fopen("metropol.dat", "w");
@@ -33,30 +33,19 @@ rand_num = 0;
 
 rand_num= (double)rand()/(double)RAND_MAX;
 
-r_old[0]=r1[0];
-r_old[1]=r1[1];
-r_old[2]=r1[2];
-r_old[3]=r2[0];
-r_old[4]=r2[1];
-r_old[5]=r2[2];
+x_old=x;
 
 
 
 
 	do{
-		r1[0]=r_old[0]+ step* (((double)rand()/range)-1); 
-		r1[1]=r_old[1]+ step*  (((double)rand()/range)-1); 
-		r1[2]=r_old[2]+ step*  (((double)rand()/range)-1); 
-		r2[0]=r_old[3]+ step*  (((double)rand()/range)-1); 
-		r2[1]=r_old[4]+ step*  (((double)rand()/range)-1); 
-		r2[2]=r_old[5]+ step*  (((double)rand()/range)-1); 
-
+		x= x_old+ step* (((double)rand()/range)-1); 
 		wave_next=wavefunction();
 		condition=(wave_next*wave_next)/(wave_now*wave_now) ;
 
 	} while ( condition < rand_num);
 
-fprintf(pf,"%f  %f  %f  %f  %f  %f\n",r1[0],r1[1],r1[2],r2[0],r2[1],r2[2]);
+fprintf(pf,"%f \n",x);
 }
 
 fclose(pf);
