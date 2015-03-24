@@ -10,16 +10,16 @@ friend class observable;
 
 private:		// all variable needed to do computations
 
-double r1[3];
-double r2[3];
-double phi_1L, phi_1R, phi_2L, phi_2R, r_12;
+double r1[3],R1[3] ={0};
+double r2[3],R2[3] = {0};
+double r_12;
 double phi_1, phi_2, xii , wave_func;
 double alpha, a , beta , s;
 int N;
 
 protected:
-double r_1L, r_1R, r_2L, r_2R;
-double r_12vec[3], r_1Lvec[3], r_1Rvec[3], r_2Lvec[3], r_2Rvec[3];
+double r1R1_vec[3], r1R2_vec[3], r2R1_vec[3], r2R2_vec[3], r_12vec[3], R1R2_vec[3];
+double r1R1, r1R2, r2R1, r2R2, R1R2;
 
 
 public:
@@ -59,15 +59,13 @@ friend double* minimize(observable& obj, double x0, double x1, double stop_prec,
 
 private:
 particle temp;
-double norm_wave;
-int N;
 
 public:
-observable(particle& temp) : temp(temp) { norm_wave=0;}
+observable(particle& temp) : temp(temp) {}
+
 
 double energy();	
 
-void norm();
 
 void metropolis_walker();
 

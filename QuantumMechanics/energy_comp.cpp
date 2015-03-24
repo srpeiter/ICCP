@@ -1,55 +1,60 @@
 #include"allheaders.h"
 #include<fstream>
+#include<iostream>
 // this whole code is based on fixing s and varying beta to find minimum.
 
 
 double observable::energy()
 {// here we calculate the enery of the particle
 const int dim= 3;
-double first_term, second_term, third_term, fourth_term, fifth_term, sixth_term, seventh_term;
-double inter_res1, inter_res2;
+double first_term, second_term, third_term, fourth_term, fifth_term, sixth_term;
+double aux1=0, aux2=0, aux3=0, aux4=0, aux5v=0, aux6v=0, aux7v=0, aux8v=0;
+double gamma;
+
 double energy;
 
 temp.wavefunction();
 
-first_term = 1.0/(temp.a*temp.a);
-second_term = ((temp.phi_1L/temp.r_1L) + (temp.phi_1R/temp.r_1R))* (1.0/temp.a*temp.phi_1);
-third_term =  ((temp.phi_2L/temp.r_2L) + (temp.phi_2R/temp.r_2R))* (1.0/temp.a*temp.phi_2);
-fourth_term = (1.0/temp.r_1L) +  (1.0/temp.r_1R) +  (1.0/temp.r_2L) +  (1.0/temp.r_2R);
-fifth_term = 1.0/temp.r_12;
+gamma = 1 + temp.beta*temp.r_12;
 
-for(int j=0; j < dim; j++)
+
+
+aux1 = (1.0/temp.a) * (exp(-temp.r1R1/temp.a)/temp.phi_1) - 1;
+aux2 = (1.0/temp.a) * (exp(-temp.r1R2/temp.a)/temp.phi_1) - 1;
+aux3 = (1.0/temp.a) * (exp(-temp.r2R1/temp.a)/temp.phi_2) - 1;
+aux4 = (1.0/temp.a) * (exp(-temp.r2R2/temp.a)/temp.phi_2) - 1;
+
+
+for (int j=0; j < dim; j++)
 {
-inter_res1=((temp.phi_1L*temp.r_1Lvec[j] + temp.phi_1R*temp.r_1Rvec[j])/temp.phi_1) - 
-((temp.phi_2L*temp.r_2Lvec[j] + temp.phi_2R*temp.r_2Rvec[j])/temp.phi_2) ;
-
-inter_res2= temp.r_12vec[j]/(2*temp.a*(1+temp.beta*temp.r_12)*(1+temp.beta*temp.r_12));
-
-sixth_term += inter_res1*inter_res2;
+aux5v += (temp.r1R1_vec[j] * temp.r_12vec[j] ) / (temp.r_12*temp.alpha*gamma*gamma);
+aux6v += (temp.r1R2_vec[j] * temp.r_12vec[j] ) / (temp.r_12*temp.alpha*gamma*gamma);
+aux7v += (temp.r2R1_vec[j] * temp.r_12vec[j] ) / (temp.r_12*temp.alpha*gamma*gamma);
+aux8v += (temp.r2R2_vec[j] * temp.r_12vec[j] ) / (temp.r_12*temp.alpha*gamma*gamma);
 }
 
-seventh_term= ((4*temp.beta +1)*temp.r_12 +4)/(4.0*pow((1+temp.beta*temp.r_12),4)*temp.r_12);
 
-energy= -first_term + second_term + third_term - fourth_term + fifth_term +sixth_term - seventh_term; 
+
+first_term = 1.0/(temp.a*temp.a);
+
+second_term = (1/temp.r_12) * (1 - (2*temp.alpha*gamma + temp.r_12)/(temp.alpha*temp.alpha*pow(gamma,4)));
+	
+	
+third_term = (1/temp.r1R1)* (1 + aux5v)*aux1;
+	
+	
+fourth_term = (1/temp.r1R2)* (1 + aux6v)*aux2;
+
+fifth_term = (1/temp.r2R1) * (1 - aux7v)*aux3;
+
+
+sixth_term = (1/temp.r2R2) * (1 - aux8v)*aux4;
+
+
+
+energy= -first_term + second_term + third_term + fourth_term + fifth_term +sixth_term;
 
 return energy;
-
-}
-
-void observable::norm()
-{//here we normalize the wavefunction only once per s and beta
-double wave_sq=0, temp_wave;
-
-std:: ifstream infile("metropol.dat");
-
-while (infile >> temp.r1[0] >> temp.r1[1] >> temp.r1[2] >> temp.r2[0] >> temp.r2[1] >> temp.r2[2])
-{
-
-temp_wave= temp.wavefunction();
-wave_sq += temp_wave * temp_wave;
-}
-norm_wave = (1.0/N)* wave_sq;
-fprintf(stdout, "the norm of the wave_func is %f\n",norm_wave);
 
 }
 
@@ -59,27 +64,32 @@ fprintf(stdout, "the norm of the wave_func is %f\n",norm_wave);
 
 double observable::comp_integral(double inp_beta, double inp_s)
 {
-double omega, wave_sq, epsil, fin_energy, av_energy;
+double wave_sq, epsil, fin_energy=0, av_energy;
 temp.s=inp_s;
 temp.beta=inp_beta;
-double stepsize=0.1;
-int relax=10000;
+double stepsize=0.2;
+int relax=20000;
+
+int i=0;
 temp.generate_metropolis(stepsize);
-norm();
+
 
 std:: ifstream infile("metropol.dat");
 
 while (infile >> temp.r1[0] >> temp.r1[1] >> temp.r1[2] >> temp.r2[0] >> temp.r2[1] >> temp.r2[2])
 {
 
-wave_sq= temp.wavefunction();
-omega= wave_sq*wave_sq/(norm_wave);
+
+if (i > relax)
+{
 epsil= energy();
-
-
-fin_energy += omega*epsil;
+fin_energy += epsil;
 }
-return av_energy = (1.0/(N))*fin_energy;
+
+i++;
+}
+
+return av_energy = (1.0/(temp.N -relax))*fin_energy;
 }
 
 

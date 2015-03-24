@@ -8,10 +8,10 @@ int main(void)
  double pos[2][3]= {{0.1,0.23,0.1},{0.5,0.1,0.1}};
 double *out;
 double s=0.1;
-const int N=2;
+const int N=30;
 double dat1[N], dat2[N];
-double step =0.1;
-int it = 10000;
+double step =0.2;
+int it = 100000;
 particle electron(pos,2.1,0.5,it);
 double an=electron.wavefunction();
 electron.generate_metropolis(step);
@@ -28,7 +28,7 @@ observable energy_part(electron);
 
 for (int j=0 ; j < N; j++)
 {
-out = minimize(energy_part, 8.8, 9,0.1,(s+0.2*j));
+out = minimize(energy_part, 8.8, 9,0.1,(s+0.1*j));
 cout << "beta is "<< out[0]<< " and energy is "<<out[1]<< endl;
 //cout << "average energy is "<< en<<endl;
 dat1[j]=(s+0.1*j);

@@ -20,46 +20,52 @@ void particle::initialize()	// doing the precomputation for the wavefunction and
 {
 get_a(s, 0.1);	//compute a first
 
-for (int j = 0 ; j < 3 ; j++)
+// initialize first elements
+//
+
+//R1 = {-s/2.0, 0.0, 0.0};
+//R2 = { s/2.0, 0.0, 0.0};
+
+R1[0]= -s/2;
+R2[0]= s/2;
+
+
+for (int j=0; j < 3; j++)
 {
-
-r_1Lvec[j]= r1[j] + (s/2.0);
-r_2Lvec[j]= r2[j] + (s/2.0);
-r_1Rvec[j]= r1[j] - (s/2.0);
-r_2Rvec[j]= r2[j] - (s/2.0);
-
-r_12vec[j] = r1[j] - r2[j];
+r1R1_vec[j]= r1[j] - R1[j];
+r1R2_vec[j]= r1[j] - R2[j];
+r2R1_vec[j]= r2[j] - R1[j];
+r2R2_vec[j]= r2[j] - R2[j];
+R1R2_vec[j]= R1[j] - R2[j];
+r_12vec[j] = r1[j] - r2[j] ;
 }
-  
-r_1L= r_1Lvec[0]*r_1Lvec[0] + r_1Lvec[1]*r_1Lvec[1] +  r_1Lvec[2]*r_1Lvec[2];
-r_2L= r_2Lvec[0]*r_2Lvec[0] + r_2Lvec[1]*r_2Lvec[1] +  r_2Lvec[2]*r_2Lvec[2];
-r_1R= r_1Rvec[0]*r_1Rvec[0] + r_1Rvec[1]*r_1Rvec[1] +  r_1Rvec[2]*r_1Rvec[2];
-r_2R= r_2Rvec[0]*r_2Rvec[0] + r_2Rvec[1]*r_2Rvec[1] +  r_2Rvec[2]*r_2Rvec[2];
 
-r_12= r_12vec[0]*r_12vec[0] + r_12vec[1]*r_12vec[1] +  r_12vec[2]*r_12vec[2];
+r1R1=0 ; r1R2=0; r2R1=0; r2R2=0; R1R2=0; r_12=0;
+//calculating distances;
+for (int j=0 ; j < 3 ; j++)
+{
+r1R1 += r1R1_vec[j]*r1R1_vec[j];
+r1R2 += r1R2_vec[j]*r1R2_vec[j];
+r2R1 += r2R1_vec[j]*r2R1_vec[j];
+r2R2 += r2R2_vec[j]*r2R2_vec[j];
+R1R2 += R1R2_vec[j]*R1R2_vec[j];
+r_12 += r_12vec[j]*r_12vec[j];
 
-r_12 = sqrt(r_12);
-
-phi_1L=exp(-r_1L/a);
-phi_1R=exp(-r_1R/a);
-
-phi_2L=exp(-r_2L/a);
-phi_2R=exp(-r_2R/a);
-
-
+}
 
 }
 
  
 void particle::phi1()
 {
-phi_1=phi_1L + phi_1R;
+phi_1= exp(-r1R1) + exp(-r1R2);
 }
 
 
 void particle::phi2()
 {
-phi_2=phi_2L + phi_2R;
+phi_2= exp(-r2R1) + exp(-r2R2);
+
 }
 
 void particle::xi()
