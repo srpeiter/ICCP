@@ -1,0 +1,15 @@
+#include <cmath> // To compute absolute value
+
+float get_a(float s, float precision)
+{
+	float l = 0.5;
+	float r = 1;
+	float a = 0.75;
+	float a_old = 0;
+	while (std::abs(a_old-a) > precision){
+		(a*log(a/(1-a))>s) ? (r=a) : (l=a);	
+		a_old = a;	
+		a = (r+l)/2;
+	}
+	return a;
+}

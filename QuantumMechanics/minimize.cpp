@@ -1,38 +1,32 @@
 #include"allheaders.h"
 
 
-// To integrate this code in the program, we should replace the function "dummy" by the energy calculating function
 
-
-double* minimize(observable& obj,double x0, double x1, double stop_prec,double s_inp)
+double* minimize(observable& obj,double beta0, double beta1, double stop_prec,double s_inp)
 {
 static double output[2];
-double eps = x1/100.0;
-double x_old = x0;
+double eps = beta1/100.0;
+double beta_old = beta0;
 
-double f_old = obj.comp_integral(x0,s_inp);
-fprintf(stdout,"the old energy is %f\n", f_old);
+double E_old = obj.comp_integral(beta0,s_inp);
 
-double x_new = x1;
-double f_new = obj.comp_integral(x1,s_inp);
-double dx = x_new - x_old;
-fprintf(stdout,"delta beta is  %f\n", dx);
-double df = f_new -f_old;
+double beta_new = beta1;
+double E_new = obj.comp_integral(beta1,s_inp);
+double dbeta = beta_new - beta_old;
+double dE = E_new -E_old;
 //To understand the algorithm, let's see what happens in the first iteration
-	while(std::abs(dx) > stop_prec){
-	x_old = x_new; // x1 = x_new
-    	x_new = x_new - eps * df/dx; // x2 is computed
-	dx = x_new - x_old; // dx = x2 -x1 
-	f_old = f_new; // f1 = f_new
-fprintf(stdout,"x_new is  %f\n", x_new);
+	while(std::abs(dbeta) > stop_prec){
+	beta_old = beta_new; // beta1 = beta_new
+    	beta_new = beta_new - eps * dE/dbeta; // beta2 is computed
+	dbeta = beta_new - beta_old; // dbeta = beta2 -beta1 
+	E_old = E_new; // E1 = E_new
 
-	f_new = obj.comp_integral(x_new,s_inp); // f2 is computed
-	fprintf(stdout,"the new energy is %f\n", f_new);
-	df = f_new-f_old; // df = f2-f1
+	E_new = obj.comp_integral(beta_new,s_inp); // E2 is computed
+	dE = E_new-E_old; // dE = E2-E1
 	}
 
-output[0] = x_new;
-output[1] = f_new;
+output[0] = beta_new;
+output[1] = E_new;
 
 return output;
 }

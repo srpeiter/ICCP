@@ -68,7 +68,7 @@ double wave_sq, epsil, fin_energy=0, av_energy;
 temp.s=inp_s;
 temp.beta=inp_beta;
 double stepsize=0.2;
-int relax=20000;
+int relax=(int)temp.N/10;
 
 int i=0;
 temp.generate_metropolis(stepsize);

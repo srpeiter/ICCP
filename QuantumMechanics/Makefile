@@ -44,4 +44,6 @@ clean:
 
 run :  $(PROGRAM_NAME)
 	./$(PROGRAM_NAME)
+	gnuplot
+	plot "test.dat" with lines
 

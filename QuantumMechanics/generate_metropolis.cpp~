@@ -1,0 +1,71 @@
+#include"allheaders.h"
+#include<time.h>
+#include<cmath.h>
+
+
+
+// INPUTS
+//		step: the maximum distance two successive positions can vary
+//		r_init: 2x3 matrix corresponding to the initial positions of the electrons
+//		N: the number of positions to be generated
+
+// OUPUT
+//		out: a Nx2x3 array of positions
+
+// To use this code, just replace "dummy2" by the function that calculates the wave function
+
+void particle::metropolis(double conv_indicator,double eps)
+{
+srand(time(NULL));
+double r_old[6],step[6],rand_num,wave_old,condition;
+double d_wave=0;
+double d_r[6]={0,0,0,0,0,0};;
+
+do{
+
+	
+	double wave_old = wavefunction();
+	rand_num= (double)rand()/(double)RAND_MAX;
+
+	r_old[0]=r1[0];
+	r_old[1]=r1[1];
+	r_old[2]=r1[2];
+	r_old[3]=r2[0];
+	r_old[4]=r2[1];
+	r_old[5]=r2[2];
+
+	do{
+		r1[0]=r_old[0]+ step*  (((double)rand()/range)-1); 
+		r1[1]=r_old[1]+ step*  (((double)rand()/range)-1); 
+		r1[2]=r_old[2]+ step*  (((double)rand()/range)-1); 
+		r2[0]=r_old[3]+ step*  (((double)rand()/range)-1); 
+		r2[1]=r_old[4]+ step*  (((double)rand()/range)-1); 
+		r2[2]=r_old[5]+ step*  (((double)rand()/range)-1); 
+
+		wave_next=wavefunction();
+		condition=(wave_next*wave_next)/(wave_old*wave_old) ;
+
+	} while ( condition < rand_num);
+
+	d_wave = wave_next*wave_next - wave_old*wave_old;
+
+	dr[0] = r1[0]-r_old[0];
+	dr[1] = r1[1]-r_old[1];
+	dr[2] = r1[2]-r_old[2];
+	dr[3] = r2[0]-r_old[3];
+	dr[4] = r2[1]-r_old[4];
+	dr[5] = r2[2]-r_old[5];
+
+	step[0] = eps * d_wave / d_r[0];
+	step[1] = eps * d_wave / d_r[1];
+	step[2] = eps * d_wave / d_r[2];
+	step[3] = eps * d_wave / d_r[3];
+	step[4] = eps * d_wave / d_r[4];
+	step[5] = eps * d_wave / d_r[5];
+
+}while( !(difference>0 && difference<conv_indicator) );
+}
+
+
+
+

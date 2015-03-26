@@ -1,0 +1,5 @@
+git add text.txt
+git commit -m "new file"
+git push origin mario
+
+git checkout -f  mario  (OR MASTER)
