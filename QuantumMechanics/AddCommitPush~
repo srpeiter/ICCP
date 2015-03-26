@@ -1,3 +1,0 @@
-git add text.txt
-git commit -m "new file"
-git push origin mario
