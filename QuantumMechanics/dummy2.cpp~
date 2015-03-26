@@ -1,5 +1,0 @@
-#include <cmath>
-float dummy2(float** x)
-{
-	return expf(-x[0][0]*x[0][0])/(2*3.14);
-}
