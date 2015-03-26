@@ -10,10 +10,10 @@ int main(void)
 ////////////////  PARAMETERS   /////////////////
 
 double metro_step = 0.1;
-double s_min = 0.2;
-double s_max = 2;
+double s_min = 0.1;
+double s_max = 1.5;
 double s_step = 0.01;
-int it = 100000; 		// Number of iterations in the Monte Carlo 
+int it = 10000; 		// Number of iterations in the Monte Carlo 
 double beta_0 = 8.8; 		// Begining values for the minimiztion algorithm
 double beta_1 = 9;
 double conv_indicator = 0.05;	// The minimization algorithm stops when the difference between two successive values is lower
@@ -38,7 +38,7 @@ for (int j=0 ; j <= N+1; j++)
 	out = minimize(energy_part, beta_0, beta_1, eps,s); 
 	dat1[j]=s;
 	dat2[j]=out[1] + 1/s;
-	fprintf(stdout,"%2.0f percent\n", 100*(float)j/(float)(N+1));
+	fprintf(stdout,"%2.1f percent\n", 100*(float)j/(float)(N+1));
 }
 
 
