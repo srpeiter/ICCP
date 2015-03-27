@@ -5,22 +5,25 @@ using namespace std;
 int main(void)
 
 {
-double initposx= 0.3;
+double initposx= 0.1;
 double out;
-double a=0.1;
-const int N=30; 
+double a_start=0.5;
+double a_end=1.5;
+double a_step=0.01;
+const int N=(a_end-a_start)/a_step; 
 double dat1[N], dat2[N];
-int it = 10000;
-double step = 0.2;
+int it = 100000;
+
+
 particle electron(initposx, 0.1, it);
 double an=electron.wavefunction();
-electron.generate_metropolis(step);
+electron.generate_metropolis(2);
 observable energy_part(electron);
 
 for (int j=0 ; j < N; j++){
-	out = energy_part.comp_integral(a+0.1*j);
-	cout << "a is "<< a<< " and energy is "<<  out << endl;//cout << "average energy is "<< en<<endl;
-	dat1[j]=(a+0.1*j);
+	out = energy_part.comp_integral(a_start+a_step*j);
+	cout << "a is "<< a_start+a_step*j<< " and energy is "<<  out << endl;//cout << "average energy is "<< en<<endl;
+	dat1[j]=(a_start+a_step*j);
 	dat2[j]=out;
 }
 

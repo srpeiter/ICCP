@@ -22,7 +22,7 @@ particle( double x, double a, int N) :  x(x), a(a), N(N) {}
 
 double wavefunction();	// total wavefunction
 
-void generate_metropolis(double step);
+double generate_metropolis(double step);
 
 
 
