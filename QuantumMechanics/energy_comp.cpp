@@ -64,32 +64,72 @@ return energy;
 
 double observable::comp_integral(double inp_beta, double inp_s)
 {
-double wave_sq, epsil, fin_energy=0, av_energy;
+double wave_sq, epsil, fin_energy=0, av_energy,delta_E,E;
 temp.s=inp_s;
 temp.beta=inp_beta;
 double stepsize=0.2;
 int relax=(int)temp.N/10;
 
 int i=0;
-temp.generate_metropolis(stepsize);
 
 
-std:: ifstream infile("metropol.dat");
+srand(time(NULL));
 
-while (infile >> temp.r1[0] >> temp.r1[1] >> temp.r1[2] >> temp.r2[0] >> temp.r2[1] >> temp.r2[2])
+FILE *pf;
+double wave_now, wave_next, condition, rand_num,range;
+double r_old[6];
+range=(0.5*RAND_MAX);
+
+pf = fopen("metropol.dat", "w");
+
+for (int i=0 ; i < temp.N ; i++)
 {
 
+wave_now=temp.wavefunction();
+condition = 0;
+rand_num = 0;
 
-if (i > relax)
-{
-epsil= energy();
-fin_energy += epsil;
+rand_num= (double)rand()/(double)RAND_MAX;
+
+r_old[0]=temp.r1[0];
+r_old[1]=temp.r1[1];
+r_old[2]=temp.r1[2];
+r_old[3]=temp.r2[0];
+r_old[4]=temp.r2[1];
+r_old[5]=temp.r2[2];
+
+
+
+
+	
+		temp.r1[0]=r_old[0]+ 2*  (((double)rand()/range)-1); 
+		temp.r1[1]=r_old[1]+ 2*  (((double)rand()/range)-1); 
+		temp.r1[2]=r_old[2]+ 2*  (((double)rand()/range)-1); 
+		temp.r2[0]=r_old[3]+ 2*  (((double)rand()/range)-1); 
+		temp.r2[1]=r_old[4]+ 2*  (((double)rand()/range)-1); 
+		temp.r2[2]=r_old[5]+ 2*  (((double)rand()/range)-1); 
+
+		wave_next=temp.wavefunction();
+		condition=(wave_next*wave_next)/(wave_now*wave_now) ;
+
+	if( condition < rand_num){
+		temp.r1[0]=r_old[0]; 
+		temp.r1[1]=r_old[1]; 
+		temp.r1[2]=r_old[2]; 
+		temp.r2[0]=r_old[3]; 
+		temp.r2[1]=r_old[4]; 
+		temp.r2[2]=r_old[5];
+	}
+	else{
+		delta_E = energy();
+	}
+E = E + delta_E;
+fprintf(pf,"%f  %f  %f  %f  %f  %f\n",temp.r1[0],temp.r1[1],temp.r1[2],temp.r2[0],temp.r2[1],temp.r2[2]);
 }
 
-i++;
-}
+fclose(pf);
 
-return av_energy = (1.0/(temp.N -relax))*fin_energy;
+return E/temp.N;
 }
 
 

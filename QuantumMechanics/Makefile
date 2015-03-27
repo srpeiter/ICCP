@@ -39,7 +39,7 @@ generate_metropolis.o:generate_metropolis.cpp montecarlo.h
 
 
 clean:
-	\rm *.o  $(PROGRAM_NAME)
+	\rm *.o $(PROGRAM_NAME)
 
 
 run :  $(PROGRAM_NAME)
