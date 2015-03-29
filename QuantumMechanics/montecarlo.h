@@ -45,7 +45,7 @@ void xi();
 
 double wavefunction();	// total wavefunction
 
-void generate_metropolis(double step);
+
 
 
 

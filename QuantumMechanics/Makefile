@@ -8,7 +8,7 @@ LFLAGS = $(DEBUG)
 
 OPTIMAZATION=  -O3 -fopenmp 
 
-OBJS = energy_comp.o particle_func.o plot_func.o minimize.o generate_metropolis.o test.o
+OBJS = energy_comp.o particle_func.o plot_func.o minimize.o test.o
 
 PROGRAM_NAME = program
 
@@ -32,10 +32,6 @@ particle_func.o:particle_func.cpp allheaders.h
 minimize.o:minimize.cpp montecarlo.h
 	$(CC) $(CFLAGS) minimize.cpp
 
-generate_metropolis.o:generate_metropolis.cpp montecarlo.h
-	$(CC) $(CFLAGS) generate_metropolis.cpp
-
-
 
 
 clean:
@@ -46,4 +42,5 @@ run :  $(PROGRAM_NAME)
 	./$(PROGRAM_NAME)
 	gnuplot
 	plot "test.dat" with lines
+	
 

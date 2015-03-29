@@ -29,7 +29,7 @@ particle electron(pos,2.1,0.5,it);	// Don't care about the arguments, just to in
 electron.wavefunction(); 		// Initializes the variables in electron
 double s;
 
-electron.generate_metropolis(metro_step);
+//electron.generate_metropolis(metro_step);
 observable energy_part(electron);
 
 for (int j=0 ; j <= N+1; j++)

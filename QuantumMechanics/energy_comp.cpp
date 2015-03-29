@@ -119,6 +119,9 @@ r_old[5]=temp.r2[2];
 		temp.r2[0]=r_old[3]; 
 		temp.r2[1]=r_old[4]; 
 		temp.r2[2]=r_old[5];
+		
+		delta_E = energy();
+
 	}
 	else{
 		delta_E = energy();
