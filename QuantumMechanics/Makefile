@@ -1,4 +1,4 @@
-CC = g++ 
+CC = g++ -std=gnu++11 
 
 DEBUG = -g
 
