@@ -10,9 +10,9 @@
 class mydata
 {
 int particles;
-double *xdata = NULL;
-double *ydata = NULL;
-double *zdata = NULL;
+double *xdata;
+double *ydata;
+double *zdata;
 public:
 mydata (double *xdata, int particles) : xdata(xdata), particles(particles) {}
 

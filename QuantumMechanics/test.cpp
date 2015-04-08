@@ -37,7 +37,7 @@ for (int j=0 ; j <= N+1; j++)
 	s=s_min+s_step*j;
 	out = minimize(energy_part, beta_0, beta_1, eps,s); 
 	dat1[j]=s;
-	dat2[j]=out[1] + 1/s;
+	dat2[j]=out[1];
 	fprintf(stdout,"%2.1f percent\n", 100*(float)j/(float)(N+1));
 }
 
