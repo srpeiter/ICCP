@@ -34,8 +34,8 @@ for (int j=0; j < 3; j++)
 {
 	r1L_vec[j]= r[j] 	- R[j];
 	r1R_vec[j]= r[j] 	- R[j+3];
-	r2L_vec[j]= r[j+3] 	- R[j];
-	r2R_vec[j]= r[j+3] 	- R[j+3];
+	r2L_vec[j]= r[j+3] - R[j];
+	r2R_vec[j]= r[j+3] - R[j+3];
 	r12_vec[j] = r[j] 	- r[j+3] ;
 }
 
@@ -83,14 +83,13 @@ double particle::wavefunction()	// calculating the wavefunction with phi1, phi2 
 	phi1();
 	phi2();
 	xi();
-	wave_func= phi_1*phi_2*xii;
-	return wave_func;
+	return wave_func= phi_1*phi_2*xii;
 }
 
 
 double particle::energy()
-{// here we calculate the energy of the particle
-	double term_1, term_2, term_3, term_4, term_5, term_6, term_7, term_8; 
+{// here we calculate the enery of the particle
+	double term_1, term_2, term_3, term_4, term_5, term_6, term_7; 
 	double energy=0;
 	wavefunction();
 
@@ -105,15 +104,13 @@ double particle::energy()
 	term_4 = -1/r1L-1/r1R-1/r2L-1/r2R;
 	term_5 = 1/r12;
 
-	term_6 = 0;
 	for (int j=0 ; j < 3 ; j++){
-		term_6 += ((phi_1L*r1L_vec[j]/r1L+phi_1R*r1R_vec[j]/r1R)/phi_1-(phi_2L*r2L_vec[j]/r2L+phi_2R*r2R_vec[j]/r2R)/phi_2)*r12_vec[j]/(r12*2*a*(1+beta*r12)*(1+beta*r12));
+		term_6 = ((phi_1L*r1L_vec[j]+phi_1R*r1R_vec[j])/phi_1-(phi_2L*r2L_vec[j]+phi_2R*r2R_vec[j])/phi_2)*r12_vec[j]/(2*a*(1+beta*r12)*(1+beta*r12));
 	}
 
 	term_7 = -((4*beta+1)*r12+4)/(4*(1+beta*r12)*(1+beta*r12)*(1+beta*r12)*(1+beta*r12)*r12);
-	term_8 = 1/s;
 
-	energy = term_8 + term_7 + term_6 + term_5 + term_4 + term_3 + term_2 + term_1;
+	energy = term_7;// + term_6 + term_5 + term_4 + term_3 + term_2 + term_1;
 
 	return energy;
 }

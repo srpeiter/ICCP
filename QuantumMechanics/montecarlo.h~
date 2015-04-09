@@ -17,7 +17,7 @@ int N;
 
 protected:
 double r1L_vec[3], r1R_vec[3], r2L_vec[3], r2R_vec[3], r12_vec[3];
-double r1L, r1R, r2L, r2R, r12;
+double r1L, r1R, r2L, r2R;
 
 
 
