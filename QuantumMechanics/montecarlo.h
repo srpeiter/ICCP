@@ -4,7 +4,7 @@
 class particle
 {
 
-friend double* minimize(particle& obj, double x0, double x1, double stop_prec, double inp_s );
+friend double* minimize(particle& obj,double s,int N_beta);
 
 private:		// all variable needed to do computations
 

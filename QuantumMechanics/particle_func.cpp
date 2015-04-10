@@ -132,6 +132,10 @@ double particle::comp_integral(double inp_beta, double inp_s)
 	srand(time(NULL));
 	range=(0.5*RAND_MAX);
 
+	for (int j=0 ; j < 6 ; j++){
+			r[j]=1; 
+		}
+
 	for (int i=0 ; i < N ; i++)
 	{
 

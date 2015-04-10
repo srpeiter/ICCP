@@ -1,3 +1,2 @@
-set xrange [-5:5]
-plot "test.dat"
+plot "test.dat" with lines
 pause -1

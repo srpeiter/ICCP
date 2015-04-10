@@ -8,7 +8,7 @@ LFLAGS = $(DEBUG)
 
 OPTIMAZATION=  -O3 -fopenmp 
 
-OBJS = particle_func.o plot_func.o minimize.o test.o
+OBJS = particle_func.o minimize.o test.o
 
 PROGRAM_NAME = program
 
@@ -17,9 +17,6 @@ program: $(OBJS)
 
 test.o: test.cpp allheaders.h
 	$(CC) $(CFLAGS) test.cpp 
-
-plot_func.o:plot_func.cpp allheaders.h
-	$(CC) $(CFLAGS) plot_func.cpp
 
 particle_func.o:particle_func.cpp allheaders.h
 	$(CC) $(CFLAGS) particle_func.cpp
@@ -35,7 +32,8 @@ clean:
 
 run :  $(PROGRAM_NAME)
 	./$(PROGRAM_NAME)
-	
+	python data.py
+
 
 
 	

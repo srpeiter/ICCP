@@ -6,6 +6,7 @@
 #include<stdlib.h>
 #include<cmath>
 
+#include"plotting.h"
 #include"montecarlo.h"
 
 #endif
