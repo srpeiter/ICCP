@@ -5,7 +5,7 @@ from scipy.optimize import curve_fit
 
 plt.close('figure 1')
 
-data = open('test.dat', 'r')
+data = open('test_gold.dat', 'r')
 x, y = np.loadtxt(data, delimiter=' ', usecols=(0, 1), unpack=True)
 
 ref = open('ref.dat', 'r')

@@ -4,8 +4,8 @@
 
 double* minimize(particle& obj,double s,int N_beta){
 
-double beta_min = 0.3;
-double beta_max = 1;
+double beta_min = 0.1;
+double beta_max = 0.5;
 
 int N=N_beta;
 static double output[2];
