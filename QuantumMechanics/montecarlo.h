@@ -1,6 +1,10 @@
 #ifndef MONTECARLO_H
 #define MONTECARLO_H
 
+// this headerfile implements a paricle class for with all the neccesary 
+// function to run the simulation
+// ex. : class particle : all the neccesary function to calculate the mutual
+// wavefunction, minimazation, the local energy
 class particle
 {
 
@@ -34,9 +38,9 @@ particle( double init_pos[6], double beta, double s, int N) :  beta(beta), s(s),
 
 void get_a(double s, double criteria);
 void initialize();	// initialize everything
-void phi1();		
-void  phi2();
-void xi();
+void phi1();	// wavefunction of particle 1		
+void  phi2();	// wavefunction of particle 2
+void xi();	// interaction wavefunction between particle 1 and 2
 double wavefunction();	// total wavefunction
 double energy();	
 double comp_integral(double inp_beta, double inp_s);

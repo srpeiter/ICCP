@@ -8,15 +8,15 @@ LFLAGS = $(DEBUG)
 
 OPTIMAZATION=  -O3 -fopenmp 
 
-OBJS = particle_func.o minimize.o test.o
+OBJS = particle_func.o minimize.o main.o
 
 PROGRAM_NAME = program
 
 program: $(OBJS)
 	$(CC)  $(LFLAGS) $(OBJS) -o $(PROGRAM_NAME)
 
-test.o: test.cpp allheaders.h
-	$(CC) $(CFLAGS) test.cpp 
+test.o: main.cpp allheaders.h
+	$(CC) $(CFLAGS) main.cpp 
 
 particle_func.o:particle_func.cpp allheaders.h
 	$(CC) $(CFLAGS) particle_func.cpp

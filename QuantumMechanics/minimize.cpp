@@ -1,6 +1,19 @@
 #include"allheaders.h"
 
-
+//     ▄▄▄▄███▄▄▄▄    ▄█  ███▄▄▄▄    ▄█    ▄▄▄▄███▄▄▄▄      ▄████████  ▄███████▄     ▄████████     ███      ▄█   ▄██████▄  ███▄▄▄▄   
+//     //   ▄██▀▀▀███▀▀▀██▄ ███  ███▀▀▀██▄ ███  ▄██▀▀▀███▀▀▀██▄   ███    ███ ██▀     ▄██   ███    ███ ▀█████████▄ ███  ███    ███ ███▀▀▀██▄ 
+//     //   ███   ███   ███ ███▌ ███   ███ ███▌ ███   ███   ███   ███    ███       ▄███▀   ███    ███    ▀███▀▀██ ███▌ ███    ███ ███   ███ 
+//     //   ███   ███   ███ ███▌ ███   ███ ███▌ ███   ███   ███   ███    ███  ▀█▀▄███▀▄▄   ███    ███     ███   ▀ ███▌ ███    ███ ███   ███ 
+//     //   ███   ███   ███ ███▌ ███   ███ ███▌ ███   ███   ███ ▀███████████   ▄███▀   ▀ ▀███████████     ███     ███▌ ███    ███ ███   ███ 
+//     //   ███   ███   ███ ███  ███   ███ ███  ███   ███   ███   ███    ███ ▄███▀         ███    ███     ███     ███  ███    ███ ███   ███ 
+//     //   ███   ███   ███ ███  ███   ███ ███  ███   ███   ███   ███    ███ ███▄     ▄█   ███    ███     ███     ███  ███    ███ ███   ███ 
+//     //    ▀█   ███   █▀  █▀    ▀█   █▀  █▀    ▀█   ███   █▀    ███    █▀   ▀████████▀   ███    █▀     ▄████▀   █▀    ▀██████▀   ▀█   █▀  
+//     //                                                                                                                                   
+// In this function we minimize the energy function as function of s and beta.
+// We noticed this minimazation is the most important part of the simualtion.
+// After the a dozen implementation of a several minimazation algrortihm,
+// this finally worked
+// this algorithm is based on a gradient descent
 
 double* minimize(particle& obj,double s,int N_beta){
 

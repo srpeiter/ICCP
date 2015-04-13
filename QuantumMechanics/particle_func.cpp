@@ -1,6 +1,6 @@
 #include"allheaders.h"
 
-
+// this function calculates "a" for a given "s". 
 void particle::get_a(double s, double criteria)
 {
 	double l = 0.5;
@@ -15,7 +15,8 @@ void particle::get_a(double s, double criteria)
 	}
 }
 
-
+// this function is called every time "s" changes 
+// It inializes everything and it precomputes the variable needed to calcuate the wavefucntions
 void particle::initialize()	// doing the precomputation for the wavefunction and energy
 {
 get_a(s, 0.1);	//compute a first
@@ -58,25 +59,26 @@ r12 = std::sqrt(r12);
 
 }
 
-
+//wavefunction of particle 1
 void particle::phi1()
 {
 	
 	phi_1= exp(-r1L/a) + exp(-r1R/a);
 }
 
-
+//wavefunction of particle 2
 void particle::phi2()
 {
 	phi_2= exp(-r2L/a) + exp(-r2R/a);
 
 }
-
+// interacting wavefunction between particle 1 and 2
 void particle::xi()
 {
 	xii=exp(r12/ (alpha*(1+beta*r12)));
 }
 
+//total wavefunction
 double particle::wavefunction()	// calculating the wavefunction with phi1, phi2 and xi
 {
 	initialize();
@@ -87,6 +89,9 @@ double particle::wavefunction()	// calculating the wavefunction with phi1, phi2 
 	return wave_func;
 }
 
+// function energy is just a implementation of the local energy, so it is 
+// wise to comment the functioning of every variable, just go through the code 
+// and try to understand it
 
 double particle::energy()
 {// here we calculate the energy of the particle
@@ -107,7 +112,7 @@ double particle::energy()
 
 	term_6 = 0;
 	for (int j=0 ; j < 3 ; j++){
-		term_6 += ((phi_1L*r1L_vec[j]/r1L+phi_1R*r1R_vec[j]/r1R)/phi_1-(phi_2L*r2L_vec[j]/r2L+phi_2R*r2R_vec[j]/r2R)/phi_2)*r12_vec[j]/(r12*2*a*(1+beta*r12)*(1+beta*r12));
+	term_6 += ((phi_1L*r1L_vec[j]/r1L+phi_1R*r1R_vec[j]/r1R)/phi_1-(phi_2L*r2L_vec[j]/r2L+phi_2R*r2R_vec[j]/r2R)/phi_2)*r12_vec[j]/(r12*2*a*(1+beta*r12)*(1+beta*r12));
 	}
 
 	term_7 = -((4*beta+1)*r12+4)/(4*(1+beta*r12)*(1+beta*r12)*(1+beta*r12)*(1+beta*r12)*r12);
@@ -118,18 +123,21 @@ double particle::energy()
 	return energy;
 }
 
+// this is part where the metropolis walker start making its steps
+// go sequentially through the code
 
 double particle::comp_integral(double inp_beta, double inp_s)
 {
 
-	double wave_now, wave_next, rand_num,range,delta_E,E;
+	double wave_now, wave_next, rand_num,range,delta_E,E; // temporary buffers 
 	double condition = 0;
 	double r_old[6];
 	s=inp_s;
-	beta=inp_beta;
-	int relax=(int)2*N/10;
+	beta=inp_beta;		// parameters we want to minimize for every "s"
+	int relax=(int)2*N/10;  // thermalization steps: bring the system to "equillibrium
 
-	srand(time(NULL));
+	// random number generator settings
+	srand(time(NULL)); //seed
 	range=(0.5*RAND_MAX);
 
 	for (int j=0 ; j < 6 ; j++){
@@ -161,7 +169,7 @@ double particle::comp_integral(double inp_beta, double inp_s)
 
 		}
 		else{
-			if (i>relax)
+			if (i>relax)  // thermalization
 			{
 				delta_E = energy();
 			}
@@ -169,5 +177,5 @@ double particle::comp_integral(double inp_beta, double inp_s)
 		E = E + delta_E;
 	}
 
-	return E/(N-relax);
+	return E/(N-relax); // local energy
 }

@@ -5,7 +5,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-
+// just a plotting library for small and fast data analysis in gnuplot
 
 class mydata
 {
