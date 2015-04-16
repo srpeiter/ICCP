@@ -5,14 +5,14 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-
+// just a plotting library for small and fast data analysis in gnuplot
 
 class mydata
 {
 int particles;
-double *xdata=NULL;
-double *ydata=NULL;
-double *zdata=NULL;
+double *xdata;
+double *ydata;
+double *zdata;
 public:
 mydata (double *xdata, int particles) : xdata(xdata), particles(particles) {}
 

@@ -1,38 +1,91 @@
 #include"allheaders.h"
 
+//     ▄▄▄▄███▄▄▄▄    ▄█  ███▄▄▄▄    ▄█    ▄▄▄▄███▄▄▄▄      ▄████████  ▄███████▄     ▄████████     ███      ▄█   ▄██████▄  ███▄▄▄▄   
+//     //   ▄██▀▀▀███▀▀▀██▄ ███  ███▀▀▀██▄ ███  ▄██▀▀▀███▀▀▀██▄   ███    ███ ██▀     ▄██   ███    ███ ▀█████████▄ ███  ███    ███ ███▀▀▀██▄ 
+//     //   ███   ███   ███ ███▌ ███   ███ ███▌ ███   ███   ███   ███    ███       ▄███▀   ███    ███    ▀███▀▀██ ███▌ ███    ███ ███   ███ 
+//     //   ███   ███   ███ ███▌ ███   ███ ███▌ ███   ███   ███   ███    ███  ▀█▀▄███▀▄▄   ███    ███     ███   ▀ ███▌ ███    ███ ███   ███ 
+//     //   ███   ███   ███ ███▌ ███   ███ ███▌ ███   ███   ███ ▀███████████   ▄███▀   ▀ ▀███████████     ███     ███▌ ███    ███ ███   ███ 
+//     //   ███   ███   ███ ███  ███   ███ ███  ███   ███   ███   ███    ███ ▄███▀         ███    ███     ███     ███  ███    ███ ███   ███ 
+//     //   ███   ███   ███ ███  ███   ███ ███  ███   ███   ███   ███    ███ ███▄     ▄█   ███    ███     ███     ███  ███    ███ ███   ███ 
+//     //    ▀█   ███   █▀  █▀    ▀█   █▀  █▀    ▀█   ███   █▀    ███    █▀   ▀████████▀   ███    █▀     ▄████▀   █▀    ▀██████▀   ▀█   █▀  
+//     //                                                                                                                                   
+// In this function we minimize the energy function as function of s and beta.
+// We noticed this minimazation is the most important part of the simualtion.
+// After the a dozen implementation of a several minimazation algrortihm,
+// this finally worked
+// this algorithm is based on a gradient descent
 
-// To integrate this code in the program, we should replace the function "dummy" by the energy calculating function
+double* minimize(particle& obj,double s,int N_beta){
 
+double beta_min = 0.1;
+double beta_max = 0.5;
 
-double* minimize(observable& obj,double x0, double x1, double stop_prec,double s_inp)
-{
+int N=N_beta;
 static double output[2];
-double eps = x1/100.0;
-double x_old = x0;
+double x[N];
+double y[N];
 
-double f_old = obj.comp_integral(x0,s_inp);
-fprintf(stdout,"the old energy is %f\n", f_old);
+double Sx=0,Sx2=0,Sy=0;
+double Sxx=0,Sxy=0,Sxx2=0,Sx2y=0,Sx2x2=0;
+double out[4];
+double a,b,c,r2;
+double Sresid=0,Stotal=0,yresid;
 
-double x_new = x1;
-double f_new = obj.comp_integral(x1,s_inp);
-double dx = x_new - x_old;
-fprintf(stdout,"delta beta is  %f\n", dx);
-double df = f_new -f_old;
-//To understand the algorithm, let's see what happens in the first iteration
-	while(std::abs(dx) > stop_prec){
-	x_old = x_new; // x1 = x_new
-    	x_new = x_new - eps * df/dx; // x2 is computed
-	dx = x_new - x_old; // dx = x2 -x1 
-	f_old = f_new; // f1 = f_new
-fprintf(stdout,"x_new is  %f\n", x_new);
-
-	f_new = obj.comp_integral(x_new,s_inp); // f2 is computed
-	fprintf(stdout,"the new energy is %f\n", f_new);
-	df = f_new-f_old; // df = f2-f1
-	}
-
-output[0] = x_new;
-output[1] = f_new;
-
-return output;
+do{
+for (int i = 0; i < N; ++i)
+{
+	x[i] = beta_min + (double)(i+1)*(beta_max-beta_min)/(double)N;
+	y[i] = obj.comp_integral(x[i],s);
+	fprintf(stdout, "", y[i]);
 }
+
+for (int i = 1; i < N-2; ++i)
+{
+	if((y[i]>y[i+2])&&(y[i]>y[i-1])){
+		y[i] = (y[i+2]+y[i-1])/2;
+	}
+}
+
+
+for (int i = 0; i < N; ++i)
+{
+	Sx 		+=x[i];
+	Sx2 	+=x[i]*x[i];
+	Sy 		+=y[i];
+
+	Sxx 	+=x[i]*x[i];
+	Sxy 	+=x[i]*y[i];
+	Sxx2 	+=x[i]*x[i]*x[i];
+	Sx2y 	+=x[i]*x[i]*y[i];
+	Sx2x2 	+=x[i]*x[i]*x[i]*x[i];
+}
+
+Sxx 	 	-=Sx*Sx/N;
+Sxy 		-=Sx*Sy/N;
+Sxx2  		-=Sx*Sx2/N;
+Sx2y  		-=Sx2*Sy/N;
+Sx2x2 		-=Sx2*Sx2/N;
+
+a = (Sx2y*Sxx-Sxy*Sxx2)/(Sxx*Sx2x2-Sxx2*Sxx2);
+b = (Sxy*Sx2x2-Sx2y*Sxx2)/(Sxx*Sx2x2-Sxx2*Sxx2);
+c = Sy/N - b*Sx/N - a*Sx2/N;
+
+for (int i = 0; i < N; ++i)
+{
+	yresid = y[i]- (a*x[i]*x[i] + b*x[i] + c);
+	Sresid += yresid*yresid;
+
+	Stotal +=(y[i]-Sy/N)*(y[i]-Sy/N)/N;
+}
+
+r2 = 1-Sresid/Stotal;
+
+output[0] = a*b/2/a*b/2/a - b*b/2/a + c;
+output[1] = - b/2/a;
+
+fprintf(stdout, "energy: %f\n",output );
+
+}while(a<0);
+
+
+return output;}

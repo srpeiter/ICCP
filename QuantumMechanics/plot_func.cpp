@@ -1,5 +1,8 @@
 #include"plotting.h"
 
+// function of the plotting library 
+// plotting done in gnuplot
+// see plot2d, plot3d and hist for small scripts written in gnuplot
 void mydata::printtofile(const char filename[])
 {
 FILE *f;

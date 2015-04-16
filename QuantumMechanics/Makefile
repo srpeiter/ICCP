@@ -1,4 +1,4 @@
-CC = g++ -std=c++11
+CC = g++ 
 
 DEBUG = -g
 
@@ -8,36 +8,33 @@ LFLAGS = $(DEBUG)
 
 OPTIMAZATION=  -O3 -fopenmp 
 
-OBJS = energy_comp.o particle_func.o plot_func.o minimize.o test.o
+OBJS = particle_func.o minimize.o main.o
 
 PROGRAM_NAME = program
 
 program: $(OBJS)
 	$(CC)  $(LFLAGS) $(OBJS) -o $(PROGRAM_NAME)
 
-test.o: test.cpp allheaders.h
-	$(CC) $(OPTIMAZATION) $(CFLAGS) test.cpp 
-
-
-
-energy_comp.o: energy_comp.cpp allheaders.h
-	$(CC) $(OPTIMAZATION) $(CFLAGS) energy_comp.cpp 
-
-plot_func.o:plot_func.cpp allheaders.h
-	$(CC) $(OPTIMAZATION) $(CFLAGS) plot_func.cpp
+test.o: main.cpp allheaders.h
+	$(CC) $(CFLAGS) main.cpp 
 
 particle_func.o:particle_func.cpp allheaders.h
-	$(CC) $(OPTIMAZATION) $(CFLAGS) particle_func.cpp
+	$(CC) $(CFLAGS) particle_func.cpp
 
 minimize.o:minimize.cpp montecarlo.h
-	$(CC) $(OPTIMAZATION) $(CFLAGS) minimize.cpp
+	$(CC) $(CFLAGS) minimize.cpp
 
 
 
 clean:
-	\rm *.o  $(PROGRAM_NAME)
+	\rm *.o $(PROGRAM_NAME)
 
 
 run :  $(PROGRAM_NAME)
 	./$(PROGRAM_NAME)
+	python data.py
+
+
+
+	
 
