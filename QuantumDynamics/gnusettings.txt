@@ -1,0 +1,9 @@
+set title " time dependent Schrodinger wavefunction" 
+set time
+set xtics
+set ytics
+set xrange[0:300]
+set yrange[0:0.019]
+plot '< cat plot.dat'with lines
+pause 0.1 
+reread;
