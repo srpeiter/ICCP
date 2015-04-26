@@ -20,7 +20,7 @@ std::cin >> wavevector;
 std::cout << "STARTING SIMULATION ....." << std::endl;
 
 double timestep =0.025;
-double dist_step = 0.1;
+double dist_step = 0.06;
 
 
 pid_t gnupid = -3;
@@ -81,6 +81,8 @@ Solver.superlu_solve_routine();
 Solver.free_mem();
 
 kill(gnupid,SIGTERM);
+
+std::cout << "SIMULATION FINISHED" << std::endl;
 
 }
 
