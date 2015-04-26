@@ -4,15 +4,17 @@
 #include <unistd.h>
 #include <fstream>
 
+#include <signal.h>
+#include<sys/stat.h>
 
 
 int main(void){
 
-double timestep =0.025;
-double dist_step = 0.01;
+double timestep =0.1;
+double dist_step = 0.1;
 
 
-int gnupid = -3;
+pid_t gnupid = -3;
 
 //setting gnu plot options
 
@@ -26,9 +28,11 @@ cmdfile   << "set title \" time dependent Schrodinger wavefunction\" " << "\n"
 		  << "set time" << "\n"
 		  << "set xtics" <<"\n"
 		  << "set ytics" << "\n"
-		  << "set xrange[0:300]" << "\n"
-		  << "set yrange[0:0.02]" << "\n"
-	      << "plot \'< cat " << "plot.dat" << "\'" <<  "with lines"<< "\n"
+		  << "set xrange [0:60]" << "\n"
+		//  << "set yrange [0:1]" << "\n"
+		  << "set autoscale y" << "\n"
+		  <<"set grid" << "\n"
+	      << "plot \'< cat " << "plot.dat" << "\'" << "using 1:2 "<< "with lines"<< "\n"
 		  << "pause 0.1 " << "\n"
 		  << "reread;" ;
 
@@ -48,7 +52,7 @@ else{
 
 solver1D Solver(timestep, dist_step);
 
-//Solver.setup_grid();
+Solver.setup_grid();
 
 Solver.allocate_mem();
 
@@ -56,15 +60,17 @@ Solver.setup_potential();
 
 Solver.init_cond();
 
-Solver.setup_RHS();
-
 Solver.setup_LHS();
+
+Solver.setup_RHS();
 
 
 
 Solver.superlu_solve_routine();
 
 Solver.free_mem();
+
+kill(gnupid,SIGTERM);
 
 }
 

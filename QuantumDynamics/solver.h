@@ -28,11 +28,11 @@ protected:
 	int N;
 	double timestep;
 	double dist_step;
-	double L = 3 + 2*dist_step ; //length of 1D grid
+	double L = 60 ;//+ 2*dist_step ; //length of 1D grid
 
 public:
 solver1D(double inptimestep, double inpdist_step): timestep(inptimestep) , dist_step(inpdist_step)
-			{ N = (int) (L/dist_step) -2 ;
+			{ N = (int) (L/dist_step);// -2 ;
 			  nnz = 3*N - 2;}  // also count the boundaries (N+2)
 
 
@@ -72,9 +72,9 @@ for(int i=0; i < N; i++)
 
  void setup_potential();
 
- void setup_RHS();
-
  void setup_LHS();
+
+ void setup_RHS();
 
 
  void init_cond();
@@ -84,7 +84,6 @@ for(int i=0; i < N; i++)
 
  void  superlu_solve_routine();
 
-//virtual double* update_wavefunc()=0;
 
 
 

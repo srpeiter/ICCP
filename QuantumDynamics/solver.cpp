@@ -3,8 +3,8 @@
 
 void solver1D:: setup_grid()
 {
-for(int i=0 ; i < N; i++)
-	grid[i]= i *dist_step;
+//for(int i=0 ; i < N; i++)
+	//grid[i]= i *dist_step;
 
 }
 
@@ -13,7 +13,7 @@ void solver1D::writetofile(FILE* pf)
 {
 	pf =fopen("plot.dat","w");
 	for (int j=0 ; j < N; j++)
-	fprintf(pf, "%f  \n", out[j].r*out[j].r + out[j].i*out[j].i);
+	fprintf(pf, "%f  %f \n", j*dist_step, out[j].r*out[j].r + out[j].i*out[j].i);
 	fclose(pf);
 }
 
@@ -48,8 +48,9 @@ for(int i = 0 ; i < N ; i++)
 void solver1D::setup_potential()
 {
 double omega = 100;
-for(int i=0 ; i < int(N) ; i++)
-	potential[i]=(i*dist_step - (L/2)) * (i*dist_step - (L/2)) *omega;
+for(int i=0 ; i < N ; i++)
+	potential[i]=0.5*(i*dist_step - (L/2)) * (i*dist_step - (L/2));// *omega;
+
 }
 
 void solver1D::init_cond()
@@ -57,22 +58,23 @@ void solver1D::init_cond()
 	FILE* pfile;
 	pfile = fopen("test.dat","w");
 	double norm=0;
-	for(int i = 0 ; i < int(N); i++)
-	{	wavefunction[i].r= std::sin(pi*(i+1)*dist_step/L);	// dont count the boundaries, because they are set to zero
-	 norm += wavefunction[i].r*wavefunction[i].r* i * dist_step;}
+	double k = 1;
+	for(int j = 0 ; j < int(N); j++)
+	{	wavefunction[j].r = std::exp(-0.5 * (dist_step*j - (L/2))*(dist_step*j - (L/2))) * std::cos(k * j * dist_step);	// dont count the boundaries, because they are set to zero
+		wavefunction[j].i = std::exp(-0.5 * (dist_step*j - (L/2))*(dist_step*j - (L/2))) * std::sin(k * j * dist_step);
+	norm += (( wavefunction[j].r*wavefunction[j].r + wavefunction[j].i*wavefunction[j].i)* j * dist_step);}
 
 	for(int i= 0; i < N ; i++)
+	{
 		wavefunction[i].r *= 1/sqrt(norm);
-
-	for(int i=0 ; i < int(N); i++)
-		fprintf(pfile, "%f \n", wavefunction[i].i*wavefunction[i].i + wavefunction[i].r*wavefunction[i].r);
+		wavefunction[i].i *= 1/sqrt(norm);}
 
 
-	fclose(pfile);
+
 }
 
 
-void solver1D::setup_RHS()
+void solver1D::setup_LHS()
 {
 
 double g =  timestep*h_bar/(4*mass*dist_step*dist_step);	//temporary/auxillary variables
@@ -87,18 +89,18 @@ doublecomplex* col= new doublecomplex [N] ();
 // RHS = (1 - i*H)
 
 
-row[0].r=1.0 ; row[0].i= -2*g;
-row[1].r=0.0 ; row[1].i= g;
+row[0].r=1.0 ; row[0].i= 2*g;
+row[1].r=0.0 ; row[1].i= -g;
 
-col[0].r=1.0 ; col[0].i=-2*g;
-col[1].r=0.0 ; col[1].i= g;
+col[0].r=1.0 ; col[0].i=2*g;
+col[1].r=0.0 ; col[1].i= -g;
 
 
 
 math_module::maketoeplitz<doublecomplex>(RHS, row , col ,N);
 for(int i = 0 ; i < N ; i++)
 {	f=(timestep*potential[i])/(2*pi);
-	RHS[i][i].i -= f ;
+	RHS[i][i].i += f ;
 }
 
 delete [] row;
@@ -106,7 +108,7 @@ delete [] col;
 
 }
 
-void solver1D::setup_LHS()
+void solver1D::setup_RHS()
 {
 // LHS complex conjugate of RHS
 for(int i=0 ; i < N ; i++)
@@ -142,9 +144,9 @@ FILE* pl;
 // Solving --------------------------
 
 
-math_module::MakeComplexSupermatrix<doublecomplex>(A, data, row_ind, col_ptr, RHS, N );
+math_module::MakeComplexSupermatrix<doublecomplex>(A, data, row_ind, col_ptr, LHS, N );
 
-math_module::matvec_multiply<doublecomplex>(out, LHS, wavefunction , N);
+math_module::matvec_multiply<doublecomplex>(out, RHS, wavefunction , N);
 
 doublecomplex* temp_sol = new doublecomplex[N] ();   // temporary buffer
 
@@ -163,7 +165,7 @@ zgssv(&options, &A, perm_c, perm_r, &L, &U, &B, &stat, &info);
 writetofile(pl); // put data into fifo
 
 
-math_module::matvec_multiply<doublecomplex>(temp_sol, LHS, out , N);
+math_module::matvec_multiply<doublecomplex>(temp_sol, RHS, out , N);
 
 memcpy(out, temp_sol, N*sizeof(temp_sol[0]));
 memset(temp_sol, 0, sizeof(temp_sol[0])*N);
