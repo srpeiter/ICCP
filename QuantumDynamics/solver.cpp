@@ -58,7 +58,7 @@ void solver1D::init_cond()
 	FILE* pfile;
 	pfile = fopen("test.dat","w");
 	double norm=0;
-	double k = 1;
+	//k = 1;
 	for(int j = 0 ; j < int(N); j++)
 	{	wavefunction[j].r = std::exp(-0.5 * (dist_step*j - (L/2))*(dist_step*j - (L/2))) * std::cos(k * j * dist_step);	// dont count the boundaries, because they are set to zero
 		wavefunction[j].i = std::exp(-0.5 * (dist_step*j - (L/2))*(dist_step*j - (L/2))) * std::sin(k * j * dist_step);
@@ -151,7 +151,7 @@ math_module::matvec_multiply<doublecomplex>(out, RHS, wavefunction , N);
 doublecomplex* temp_sol = new doublecomplex[N] ();   // temporary buffer
 
 
-for(int j=0 ; j < 1000; j++)
+for(int j=0 ; j < 5000; j++)
 {
 
 SuperMatrix  B, L, U;

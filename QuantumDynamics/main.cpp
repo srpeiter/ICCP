@@ -10,7 +10,16 @@
 
 int main(void){
 
-double timestep =0.1;
+double wavevector ;
+
+std::cout << "Give a value for the wavevector k" << std::endl;
+std:: cout << "k= " << std::endl;
+
+std::cin >> wavevector;
+
+std::cout << "STARTING SIMULATION ....." << std::endl;
+
+double timestep =0.025;
 double dist_step = 0.1;
 
 
@@ -24,16 +33,17 @@ if(gnupid == 0)
 {
 std::ofstream cmdfile("gnusettings.txt");
 
-cmdfile   << "set title \" time dependent Schrodinger wavefunction\" " << "\n"
+cmdfile   << "set term x11" << "\n"
+		  << "set title \" time dependent Schrodinger wavefunction\" " << "\n"
 		  << "set time" << "\n"
 		  << "set xtics" <<"\n"
 		  << "set ytics" << "\n"
 		  << "set xrange [0:60]" << "\n"
-		//  << "set yrange [0:1]" << "\n"
-		  << "set autoscale y" << "\n"
+		  << "set yrange [0:0.002]" << "\n"
+		  //<< "set autoscale y" << "\n"
 		  <<"set grid" << "\n"
 	      << "plot \'< cat " << "plot.dat" << "\'" << "using 1:2 "<< "with lines"<< "\n"
-		  << "pause 0.1 " << "\n"
+		  << "pause 0.01 " << "\n"
 		  << "reread;" ;
 
 cmdfile.flush();
@@ -50,7 +60,7 @@ else if ( gnupid == -1)
 else{
 
 
-solver1D Solver(timestep, dist_step);
+solver1D Solver(timestep, dist_step, wavevector);
 
 Solver.setup_grid();
 
@@ -78,84 +88,6 @@ return 0;
 
 }
 
-/*
-const  int N = 5;
-const int nnz = 3*N - 2;
-doublecomplex** mag = new doublecomplex*[N];
-for(int i=0 ; i< N; i++)
-	mag[i] = new doublecomplex [N];
 
-doublecomplex* a= new doublecomplex[N] ();
-doublecomplex* b= new doublecomplex[N] ();
-doublecomplex* data = new doublecomplex[nnz] ();
-int* row_ind = new int[nnz] ();
-int* col_ptr  = new int[N+1] ();
-
-
-a[0].r=2.0; a[0].i=3;
-a[1].r=-3.0; a[1].i=4;
-
-b[0].r=2.0; b[0].i=3;
-b[1].r=-3.0; b[1].i=4;
-
-
-math_module::maketoeplitz(mag, a,b,N);
-
-SuperMatrix A;
-
-//math_module::CCS_scheme<double>(data, row_ind, col_ptr, mag, N);
-
-math_module::MakeComplexSupermatrix(A,data,row_ind, col_ptr, mag, N);
-
-
-
-
-//math_module::print<double>(mag,N);
-
-
-/*
-std:: cout << "data" << std::endl;
-
-{
-	for (int j=0; j < (nnz); j++)
-		std::cout << std::setw(3) << data[j].r << "+ " << data[j].i<<' ' ;
-}
-
-std:: cout << "row_ind" << std::endl;
-
-{
-	for (int j=0; j < (nnz); j++)
-		std::cout << std::setw(3) << row_ind[j] << ' ' ;
-}
-
-std:: cout << "col_ptr" << std::endl;
-
-{
-	for (int j=0; j < (N); j++)
-		std::cout << std::setw(3) << col_ptr[j]<< ' ' ;
-}
-
-
-
-
-zPrint_CompCol_Matrix("A", &A) ;
-delete [] a;
-delete [] b;
-
-delete [] col_ptr;
-delete [] data;
-delete [] row_ind;
-for(int i=0 ; i < N; i++)
-	delete [] mag[i];
-
-delete [] mag;
-
-
-return 0;
-
-
-}
-
-*/
 
 

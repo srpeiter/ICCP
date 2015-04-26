@@ -29,9 +29,10 @@ protected:
 	double timestep;
 	double dist_step;
 	double L = 60 ;//+ 2*dist_step ; //length of 1D grid
+	double k; //wavevector
 
 public:
-solver1D(double inptimestep, double inpdist_step): timestep(inptimestep) , dist_step(inpdist_step)
+solver1D(double inptimestep, double inpdist_step, double wavevector): timestep(inptimestep) , dist_step(inpdist_step) , k(wavevector)
 			{ N = (int) (L/dist_step);// -2 ;
 			  nnz = 3*N - 2;}  // also count the boundaries (N+2)
 
