@@ -1,3 +1,8 @@
 *.dat
 *.o
 test.cpp
+*.out
+.cproject
+.project
+gnusettings.txt
+.settings
