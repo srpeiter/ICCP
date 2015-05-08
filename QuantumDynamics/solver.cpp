@@ -1,12 +1,6 @@
 #include "solver.h"
 
 
-void solver1D:: setup_grid()
-{
-//for(int i=0 ; i < N; i++)
-	//grid[i]= i *dist_step;
-
-}
 
 
 void solver1D::writetofile(FILE* pf)
@@ -62,7 +56,7 @@ void solver1D::init_cond()
 	for(int j = 0 ; j < int(N); j++)
 	{	wavefunction[j].r = std::exp(-0.5 * (dist_step*j - (L/2))*(dist_step*j - (L/2))) * std::cos(k * j * dist_step);	// dont count the boundaries, because they are set to zero
 		wavefunction[j].i = std::exp(-0.5 * (dist_step*j - (L/2))*(dist_step*j - (L/2))) * std::sin(k * j * dist_step);
-	norm += (( wavefunction[j].r*wavefunction[j].r + wavefunction[j].i*wavefunction[j].i)* j * dist_step);}
+	norm += (( wavefunction[j].r*wavefunction[j].r + wavefunction[j].i*wavefunction[j].i)* dist_step);}
 
 	for(int i= 0; i < N ; i++)
 	{
@@ -97,10 +91,10 @@ col[1].r=0.0 ; col[1].i= -g;
 
 
 
-math_module::maketoeplitz<doublecomplex>(RHS, row , col ,N);
+math_module::maketoeplitz<doublecomplex>(LHS, row , col ,N);
 for(int i = 0 ; i < N ; i++)
 {	f=(timestep*potential[i])/(2*pi);
-	RHS[i][i].i += f ;
+	LHS[i][i].i += f ;
 }
 
 delete [] row;
@@ -113,8 +107,8 @@ void solver1D::setup_RHS()
 // LHS complex conjugate of RHS
 for(int i=0 ; i < N ; i++)
 	for(int j=0; j < N; j++)
-	{	LHS[i][j].r = RHS[j][i].r;
-		LHS[i][j].i = -RHS[j][i].i;}
+	{	RHS[i][j].r = LHS[j][i].r;
+		RHS[i][j].i = -LHS[j][i].i;}
 }
 
 
@@ -137,7 +131,7 @@ StatInit(&stat);
 
 // plotting setup-------------------------
 
-mkfifo("plot.dat", S_IWUSR | S_IRUSR);
+// fifo file opener
 FILE* pl;
 //---------------------------------
 

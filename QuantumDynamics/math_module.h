@@ -14,6 +14,8 @@ extern "C"
 	int zgemv_(char* TRANS,int* M,int* N,doublecomplex* ALPHA,doublecomplex* A,int* LDA,doublecomplex* X, int*INCX,
           doublecomplex*  BETA, doublecomplex* Y, int* INCY );
 
+	int zgtsv_(int* N, int* NRHS, doublecomplex* DL, doublecomplex* D, doublecomplex* DU, doublecomplex* B, int* LDB, int* info);
+
 }
 
 namespace math_module
@@ -109,7 +111,8 @@ inline void Tofortran(Type* vec, Type** mat, const int N)
 template<typename Type>
 inline void matvec_multiply(Type* out, Type** mat, Type* vec  ,int N)
 {
-	Type* mat_temp  = new Type[N*N];
+	memset(out , 0, N*sizeof(out[0]));
+	Type* mat_temp  = new Type[N*N] ();
 	Tofortran<Type> (mat_temp, mat, N);
 	char trans = 'N';
 	int M = N;
@@ -125,6 +128,14 @@ inline void matvec_multiply(Type* out, Type** mat, Type* vec  ,int N)
 	delete [] mat_temp;
 }
 
+template<typename Type>
+inline void trans_pose(Type** out, Type** mat, const int N)
+{
+	for(int i = 0 ; i < N; i++)
+		for(int j=0; j < N; j++)
+			out[i][j]=mat[j][i];
+}
+
 
 template <typename Type>
 inline void print(Type** mat, const int N)
@@ -133,7 +144,7 @@ for (int i = 0; i < N; ++i)
 {
   for (int j = 0; j < N; ++j)
 	{
-		std::cout << std::setw(6) << std::setprecision(4)<<  mat[i][j].r << " + i"<< mat[i][j].i;
+		std::cout << std::setw(5) << std::setprecision(4)<<  mat[i][j].r << " + i"<< mat[i][j].i <<"  ";
 
 
 	}
