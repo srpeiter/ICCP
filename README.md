@@ -3,7 +3,7 @@
 ICCP is an International Course in Computational Physics
 for physics Students from Delft University of technology. 
 
-The first project is Molecular Dynamics. Here we have to simulate the behaviour of a noble gas.
+The first project is Molecular Dynamics. Here we simulated the behaviour of a noble gas.
 The Codes for this project can be found in the folder Molecular dynamics in file ArgonSandbox_temp.
 The Callaborator: Rick Vink
 
