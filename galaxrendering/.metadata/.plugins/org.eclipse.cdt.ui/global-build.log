@@ -1,0 +1,447 @@
+03:38:23 **** Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/renderingtest.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/renderingtest.d" -MT"src/renderingtest.d" -o "src/renderingtest.o" "../src/renderingtest.cpp"
+../src/renderingtest.cpp:312:1: warning: "/*" within comment [-Wcomment]
+ /*
+ ^
+../src/renderingtest.cpp: In function ‘void Render(std::vector<prop>, int)’:
+../src/renderingtest.cpp:171:8: warning: unused variable ‘r’ [-Wunused-variable]
+  float r = 1;
+        ^
+../src/renderingtest.cpp:172:8: warning: unused variable ‘g’ [-Wunused-variable]
+  float g = 1;
+        ^
+../src/renderingtest.cpp:173:8: warning: unused variable ‘b’ [-Wunused-variable]
+  float b = 1;
+        ^
+Finished building: ../src/renderingtest.cpp
+ 
+Building file: ../src/test.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/test.d" -MT"src/test.d" -o "src/test.o" "../src/test.cpp"
+In file included from ../src/test.cpp:1:0:
+../src/Rendering.h:39:13: warning: ‘void error_callback(int, const char*)’ declared ‘static’ but never defined [-Wunused-function]
+ static void error_callback(int error, const char* description);
+             ^
+../src/Rendering.h:40:13: warning: ‘void key_callback(GLFWwindow*, int, int, int, int)’ declared ‘static’ but never defined [-Wunused-function]
+ static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+             ^
+Finished building: ../src/test.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+Finished building target: renderingtest
+ 
+03:38:58 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/renderingtest.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/renderingtest.d" -MT"src/renderingtest.d" -o "src/renderingtest.o" "../src/renderingtest.cpp"
+../src/renderingtest.cpp:312:1: warning: "/*" within comment [-Wcomment]
+ /*
+ ^
+../src/renderingtest.cpp: In function ‘void Render(std::vector<prop>, int)’:
+../src/renderingtest.cpp:171:8: warning: unused variable ‘r’ [-Wunused-variable]
+  float r = 1;
+        ^
+Finished building: ../src/renderingtest.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+Finished building target: renderingtest
+ 
+03:39:31 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/renderingtest.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/renderingtest.d" -MT"src/renderingtest.d" -o "src/renderingtest.o" "../src/renderingtest.cpp"
+../src/renderingtest.cpp:312:1: warning: "/*" within comment [-Wcomment]
+ /*
+ ^
+../src/renderingtest.cpp: In function ‘void Render(std::vector<prop>, int)’:
+../src/renderingtest.cpp:171:8: warning: unused variable ‘r’ [-Wunused-variable]
+  float r = 1;
+        ^
+Finished building: ../src/renderingtest.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+Finished building target: renderingtest
+ 
+03:39:50 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/renderingtest.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/renderingtest.d" -MT"src/renderingtest.d" -o "src/renderingtest.o" "../src/renderingtest.cpp"
+../src/renderingtest.cpp:312:1: warning: "/*" within comment [-Wcomment]
+ /*
+ ^
+../src/renderingtest.cpp: In function ‘void Render(std::vector<prop>, int)’:
+../src/renderingtest.cpp:171:8: warning: unused variable ‘r’ [-Wunused-variable]
+  float r = 1;
+        ^
+../src/renderingtest.cpp:172:8: warning: unused variable ‘g’ [-Wunused-variable]
+  float g = 1;
+        ^
+../src/renderingtest.cpp:173:8: warning: unused variable ‘b’ [-Wunused-variable]
+  float b = 1;
+        ^
+Finished building: ../src/renderingtest.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+Finished building target: renderingtest
+ 
+03:40:38 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/test.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/test.d" -MT"src/test.d" -o "src/test.o" "../src/test.cpp"
+In file included from ../src/test.cpp:1:0:
+../src/Rendering.h:39:13: warning: ‘void error_callback(int, const char*)’ declared ‘static’ but never defined [-Wunused-function]
+ static void error_callback(int error, const char* description);
+             ^
+../src/Rendering.h:40:13: warning: ‘void key_callback(GLFWwindow*, int, int, int, int)’ declared ‘static’ but never defined [-Wunused-function]
+ static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+             ^
+Finished building: ../src/test.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+Finished building target: renderingtest
+ 
+03:45:57 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/test.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/test.d" -MT"src/test.d" -o "src/test.o" "../src/test.cpp"
+../src/test.cpp: In function ‘int main()’:
+../src/test.cpp:59:39: error: ‘floatrand’ was not declared in this scope
+          pos[20000].zcol = (floatrand()/RAND_MAX;
+                                       ^
+../src/test.cpp:59:49: error: expected ‘)’ before ‘;’ token
+          pos[20000].zcol = (floatrand()/RAND_MAX;
+                                                 ^
+In file included from ../src/test.cpp:1:0:
+../src/Rendering.h: At global scope:
+../src/Rendering.h:39:13: warning: ‘void error_callback(int, const char*)’ declared ‘static’ but never defined [-Wunused-function]
+ static void error_callback(int error, const char* description);
+             ^
+../src/Rendering.h:40:13: warning: ‘void key_callback(GLFWwindow*, int, int, int, int)’ declared ‘static’ but never defined [-Wunused-function]
+ static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+             ^
+src/subdir.mk:21: recipe for target 'src/test.o' failed
+make: *** [src/test.o] Error 1
+03:46:09 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/test.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/test.d" -MT"src/test.d" -o "src/test.o" "../src/test.cpp"
+In file included from ../src/test.cpp:1:0:
+../src/Rendering.h:39:13: warning: ‘void error_callback(int, const char*)’ declared ‘static’ but never defined [-Wunused-function]
+ static void error_callback(int error, const char* description);
+             ^
+../src/Rendering.h:40:13: warning: ‘void key_callback(GLFWwindow*, int, int, int, int)’ declared ‘static’ but never defined [-Wunused-function]
+ static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+             ^
+Finished building: ../src/test.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+Finished building target: renderingtest
+ 
+03:47:10 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/renderingtest.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/renderingtest.d" -MT"src/renderingtest.d" -o "src/renderingtest.o" "../src/renderingtest.cpp"
+../src/renderingtest.cpp:312:1: warning: "/*" within comment [-Wcomment]
+ /*
+ ^
+../src/renderingtest.cpp: In function ‘void Render(std::vector<prop>, int)’:
+../src/renderingtest.cpp:171:8: warning: unused variable ‘r’ [-Wunused-variable]
+  float r = 1;
+        ^
+../src/renderingtest.cpp:172:8: warning: unused variable ‘g’ [-Wunused-variable]
+  float g = 1;
+        ^
+../src/renderingtest.cpp:173:8: warning: unused variable ‘b’ [-Wunused-variable]
+  float b = 1;
+        ^
+Finished building: ../src/renderingtest.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+Finished building target: renderingtest
+ 
+03:53:21 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+make: Nothing to be done for 'all'.
+11:16:11 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+make: Nothing to be done for 'all'.
+13:00:27 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/renderingtest.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/renderingtest.d" -MT"src/renderingtest.d" -o "src/renderingtest.o" "../src/renderingtest.cpp"
+../src/renderingtest.cpp: In function ‘void SaveToTGA(int)’:
+../src/renderingtest.cpp:35:21: error: ‘setw’ is not a member of ‘std’
+   ss << "frame_" << std::setw(5) << std::setfill('0') << m_idxSnapshot << ".tga";
+                     ^
+../src/renderingtest.cpp:35:37: error: ‘setfill’ is not a member of ‘std’
+   ss << "frame_" << std::setw(5) << std::setfill('0') << m_idxSnapshot << ".tga";
+                                     ^
+../src/renderingtest.cpp:36:21: error: cannot convert ‘std::basic_stringstream<char>::__string_type {aka std::basic_string<char>}’ to ‘int’ for argument ‘1’ to ‘void SaveToTGA(int)’
+   SaveToTGA(ss.str());
+                     ^
+../src/renderingtest.cpp: In function ‘void SaveToTGA(const string&)’:
+../src/renderingtest.cpp:73:29: warning: narrowing conversion of ‘(width % 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+   char header[6] = { width  % 256,
+                             ^
+../src/renderingtest.cpp:74:29: warning: narrowing conversion of ‘(width / 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+                      width  / 256,
+                             ^
+../src/renderingtest.cpp:75:29: warning: narrowing conversion of ‘(heigth % 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+                      heigth % 256,
+                             ^
+../src/renderingtest.cpp:76:29: warning: narrowing conversion of ‘(heigth / 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+                      heigth / 256,
+                             ^
+../src/renderingtest.cpp: In function ‘void Render(std::vector<prop>, int)’:
+../src/renderingtest.cpp:212:8: warning: unused variable ‘r’ [-Wunused-variable]
+  float r = 1;
+        ^
+../src/renderingtest.cpp:213:8: warning: unused variable ‘g’ [-Wunused-variable]
+  float g = 1;
+        ^
+../src/renderingtest.cpp:214:8: warning: unused variable ‘b’ [-Wunused-variable]
+  float b = 1;
+        ^
+src/subdir.mk:21: recipe for target 'src/renderingtest.o' failed
+make: *** [src/renderingtest.o] Error 1
+13:03:38 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/renderingtest.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/renderingtest.d" -MT"src/renderingtest.d" -o "src/renderingtest.o" "../src/renderingtest.cpp"
+../src/renderingtest.cpp: In function ‘void SaveToTGA(int)’:
+../src/renderingtest.cpp:36:21: error: cannot convert ‘std::basic_stringstream<char>::__string_type {aka std::basic_string<char>}’ to ‘int’ for argument ‘1’ to ‘void SaveToTGA(int)’
+   SaveToTGA(ss.str());
+                     ^
+../src/renderingtest.cpp: In function ‘void SaveToTGA2(const string&)’:
+../src/renderingtest.cpp:73:29: warning: narrowing conversion of ‘(width % 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+   char header[6] = { width  % 256,
+                             ^
+../src/renderingtest.cpp:74:29: warning: narrowing conversion of ‘(width / 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+                      width  / 256,
+                             ^
+../src/renderingtest.cpp:75:29: warning: narrowing conversion of ‘(heigth % 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+                      heigth % 256,
+                             ^
+../src/renderingtest.cpp:76:29: warning: narrowing conversion of ‘(heigth / 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+                      heigth / 256,
+                             ^
+../src/renderingtest.cpp: In function ‘void Render(std::vector<prop>, int)’:
+../src/renderingtest.cpp:212:8: warning: unused variable ‘r’ [-Wunused-variable]
+  float r = 1;
+        ^
+../src/renderingtest.cpp:213:8: warning: unused variable ‘g’ [-Wunused-variable]
+  float g = 1;
+        ^
+../src/renderingtest.cpp:214:8: warning: unused variable ‘b’ [-Wunused-variable]
+  float b = 1;
+        ^
+src/subdir.mk:21: recipe for target 'src/renderingtest.o' failed
+make: *** [src/renderingtest.o] Error 1
+13:04:04 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/renderingtest.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/renderingtest.d" -MT"src/renderingtest.d" -o "src/renderingtest.o" "../src/renderingtest.cpp"
+../src/renderingtest.cpp: In function ‘void SaveToTGA2(const string&)’:
+../src/renderingtest.cpp:73:29: warning: narrowing conversion of ‘(width % 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+   char header[6] = { width  % 256,
+                             ^
+../src/renderingtest.cpp:74:29: warning: narrowing conversion of ‘(width / 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+                      width  / 256,
+                             ^
+../src/renderingtest.cpp:75:29: warning: narrowing conversion of ‘(heigth % 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+                      heigth % 256,
+                             ^
+../src/renderingtest.cpp:76:29: warning: narrowing conversion of ‘(heigth / 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+                      heigth / 256,
+                             ^
+../src/renderingtest.cpp: In function ‘void Render(std::vector<prop>, int)’:
+../src/renderingtest.cpp:212:8: warning: unused variable ‘r’ [-Wunused-variable]
+  float r = 1;
+        ^
+../src/renderingtest.cpp:213:8: warning: unused variable ‘g’ [-Wunused-variable]
+  float g = 1;
+        ^
+../src/renderingtest.cpp:214:8: warning: unused variable ‘b’ [-Wunused-variable]
+  float b = 1;
+        ^
+../src/renderingtest.cpp: In function ‘void SaveToTGA2(const string&)’:
+../src/renderingtest.cpp:44:34: warning: ‘width’ is used uninitialized in this function [-Wuninitialized]
+   glViewport(0, 0, width, heigth);
+                                  ^
+../src/renderingtest.cpp:44:34: warning: ‘heigth’ is used uninitialized in this function [-Wuninitialized]
+Finished building: ../src/renderingtest.cpp
+ 
+Building file: ../src/test.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/test.d" -MT"src/test.d" -o "src/test.o" "../src/test.cpp"
+In file included from ../src/test.cpp:1:0:
+../src/Rendering.h:42:13: warning: ‘void error_callback(int, const char*)’ declared ‘static’ but never defined [-Wunused-function]
+ static void error_callback(int error, const char* description);
+             ^
+../src/Rendering.h:43:13: warning: ‘void key_callback(GLFWwindow*, int, int, int, int)’ declared ‘static’ but never defined [-Wunused-function]
+ static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+             ^
+Finished building: ../src/test.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+Finished building target: renderingtest
+ 
+13:05:12 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/test.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/test.d" -MT"src/test.d" -o "src/test.o" "../src/test.cpp"
+In file included from ../src/test.cpp:1:0:
+../src/Rendering.h:42:13: warning: ‘void error_callback(int, const char*)’ declared ‘static’ but never defined [-Wunused-function]
+ static void error_callback(int error, const char* description);
+             ^
+../src/Rendering.h:43:13: warning: ‘void key_callback(GLFWwindow*, int, int, int, int)’ declared ‘static’ but never defined [-Wunused-function]
+ static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+             ^
+Finished building: ../src/test.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+Finished building target: renderingtest
+ 
+13:07:26 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/renderingtest.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/renderingtest.d" -MT"src/renderingtest.d" -o "src/renderingtest.o" "../src/renderingtest.cpp"
+../src/renderingtest.cpp: In function ‘void SaveToTGA2(const string&)’:
+../src/renderingtest.cpp:73:29: warning: narrowing conversion of ‘(width % 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+   char header[6] = { width  % 256,
+                             ^
+../src/renderingtest.cpp:74:29: warning: narrowing conversion of ‘(width / 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+                      width  / 256,
+                             ^
+../src/renderingtest.cpp:75:29: warning: narrowing conversion of ‘(heigth % 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+                      heigth % 256,
+                             ^
+../src/renderingtest.cpp:76:29: warning: narrowing conversion of ‘(heigth / 256)’ from ‘int’ to ‘char’ inside { } [-Wnarrowing]
+                      heigth / 256,
+                             ^
+../src/renderingtest.cpp: In function ‘void Render(std::vector<prop>, int)’:
+../src/renderingtest.cpp:212:8: warning: unused variable ‘r’ [-Wunused-variable]
+  float r = 1;
+        ^
+../src/renderingtest.cpp:213:8: warning: unused variable ‘g’ [-Wunused-variable]
+  float g = 1;
+        ^
+../src/renderingtest.cpp:214:8: warning: unused variable ‘b’ [-Wunused-variable]
+  float b = 1;
+        ^
+../src/renderingtest.cpp: In function ‘void SaveToTGA2(const string&)’:
+../src/renderingtest.cpp:44:34: warning: ‘width’ is used uninitialized in this function [-Wuninitialized]
+   glViewport(0, 0, width, heigth);
+                                  ^
+../src/renderingtest.cpp:44:34: warning: ‘heigth’ is used uninitialized in this function [-Wuninitialized]
+Finished building: ../src/renderingtest.cpp
+ 
+Building file: ../src/test.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/test.d" -MT"src/test.d" -o "src/test.o" "../src/test.cpp"
+In file included from ../src/test.cpp:1:0:
+../src/Rendering.h:43:13: warning: ‘void error_callback(int, const char*)’ declared ‘static’ but never defined [-Wunused-function]
+ static void error_callback(int error, const char* description);
+             ^
+../src/Rendering.h:44:13: warning: ‘void key_callback(GLFWwindow*, int, int, int, int)’ declared ‘static’ but never defined [-Wunused-function]
+ static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+             ^
+Finished building: ../src/test.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+Finished building target: renderingtest
+ 
+16:22:37 **** Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/renderingtest.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/renderingtest.d" -MT"src/renderingtest.d" -o "src/renderingtest.o" "../src/renderingtest.cpp"
+../src/renderingtest.cpp: In function ‘void Render(std::vector<prop>, int)’:
+../src/renderingtest.cpp:214:8: warning: unused variable ‘r’ [-Wunused-variable]
+  float r = 1;
+        ^
+../src/renderingtest.cpp:215:8: warning: unused variable ‘g’ [-Wunused-variable]
+  float g = 1;
+        ^
+../src/renderingtest.cpp:216:8: warning: unused variable ‘b’ [-Wunused-variable]
+  float b = 1;
+        ^
+Finished building: ../src/renderingtest.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+./src/test.o: In function `main':
+/home/sarwan/Documents/Programming/ICCP/galaxrendering/renderingtest/Debug/../src/test.cpp:82: undefined reference to `SaveToTGA(int)'
+makefile:45: recipe for target 'renderingtest' failed
+collect2: error: ld returned 1 exit status
+make: *** [renderingtest] Error 1
+16:23:21 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/renderingtest.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/renderingtest.d" -MT"src/renderingtest.d" -o "src/renderingtest.o" "../src/renderingtest.cpp"
+../src/renderingtest.cpp: In function ‘void Render(std::vector<prop>, int)’:
+../src/renderingtest.cpp:214:8: warning: unused variable ‘r’ [-Wunused-variable]
+  float r = 1;
+        ^
+../src/renderingtest.cpp:215:8: warning: unused variable ‘g’ [-Wunused-variable]
+  float g = 1;
+        ^
+../src/renderingtest.cpp:216:8: warning: unused variable ‘b’ [-Wunused-variable]
+  float b = 1;
+        ^
+Finished building: ../src/renderingtest.cpp
+ 
+Building file: ../src/test.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/test.d" -MT"src/test.d" -o "src/test.o" "../src/test.cpp"
+In file included from ../src/test.cpp:1:0:
+../src/Rendering.h:43:13: warning: ‘void error_callback(int, const char*)’ declared ‘static’ but never defined [-Wunused-function]
+ static void error_callback(int error, const char* description);
+             ^
+../src/Rendering.h:44:13: warning: ‘void key_callback(GLFWwindow*, int, int, int, int)’ declared ‘static’ but never defined [-Wunused-function]
+ static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+             ^
+Finished building: ../src/test.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+Finished building target: renderingtest
+ 

@@ -1,0 +1,386 @@
+//============================================================================
+// Name        : renderingtest.cpp
+// Author      : Sarwan Peiter
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include "Rendering.h"
+float *pos[3];
+const int N=40000;
+
+std::default_random_engine generator;
+std::normal_distribution<float> maxwell(0.0,1.0);
+
+
+static void error_callback(int error, const char* description)
+{
+    fputs(description, stderr);
+}
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GL_TRUE);
+}
+
+
+void Initiate_position(){
+
+	for(int i = 0 ; i < 3; i++)
+			pos[i] = new float[N];
+
+std::ifstream input("test.txt");
+
+
+int n=0;
+while(n < 40000)
+{
+
+    input >> pos[0][n] >>  pos[1][n] >> pos[2][n];
+ n++;
+
+}
+
+}
+
+
+
+void initGLFW()
+{
+	glfwSetErrorCallback(error_callback);
+	    if (!glfwInit())
+	        exit(EXIT_FAILURE);
+	    window = glfwCreateWindow(2560, 1440, "Colliding Galaxy Simulation", NULL, NULL);
+
+	    if (!window)
+	    {
+	        glfwTerminate();
+	        exit(EXIT_FAILURE);
+	    }
+
+	    // make current window OPENGL context or else OPENGL will not work
+	    glfwMakeContextCurrent(window);
+
+	    // time interval at which the render buffer(back buffer) is brought to the front buffer
+	    glfwSwapInterval(1);
+
+	    //terminate when escape-key is pressed
+	    glfwSetKeyCallback(window, key_callback);
+}
+
+/* Initialize OpenGL Graphics */
+void initGL() {
+   glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
+   glClearDepth(1.0f);                   // Set background depth to farthest
+   glEnable(GL_DEPTH_TEST);   // Enable depth testing for z-culling
+  // glEnable(GL_BLEND);
+   glDepthFunc(GL_LEQUAL);    // Set the type of depth-test
+   glShadeModel(GL_SMOOTH);   // Enable smooth shading
+   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Nice perspective corrections
+}
+
+void initPointSpriteExt()
+{
+
+	SDL_Surface *tex;
+
+	   // texture loading taken from
+	// http://gpwiki.org/index.php/SDL:Tutorials:Using_SDL_with_OpenGL
+	  tex = SDL_LoadBMP("particle.bmp");
+
+	  if (!tex)
+	    throw std::runtime_error("can't load star texture (particle.bmp).");
+
+		// Check that the image's width is a power of 2
+		if (tex->w & (tex->w - 1))
+			throw std::runtime_error("texture width is not a power of 2.");
+
+		// Also check if the height is a power of 2
+		if (tex->h & (tex->h - 1))
+			throw std::runtime_error("texture height is not a power of 2.");
+
+	  // get the number of channels in the SDL surface
+	  GLint  nOfColors = tex->format->BytesPerPixel;
+	  GLenum texture_format;
+	  if (nOfColors == 4)     // contains an alpha channel
+	  {
+	    if ( tex->format->Rmask == 0x000000ff)
+	      texture_format = GL_RGBA;
+	    else
+	      texture_format = GL_BGRA;
+	  }
+	  else if (nOfColors == 3)     // no alpha channel
+	  {
+	    if ( tex->format->Rmask == 0x000000ff)
+	      texture_format = GL_RGB;
+	    else
+	      texture_format = GL_BGR;
+	   }
+	   else
+	     throw std::runtime_error("image is not truecolor");
+
+	  // Have OpenGL generate a texture object handle for us
+		glGenTextures(1, &m_texStar);
+
+	  // Bind the texture object
+		glBindTexture( GL_TEXTURE_2D, m_texStar );
+
+		// Set the texture's stretching properties
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// Edit the texture object's image data using the information SDL_Surface gives us
+		glTexImage2D(GL_TEXTURE_2D,
+		             0,
+		             nOfColors,
+		             tex->w,
+		             tex->h,
+		             0,
+	               texture_format,
+	               GL_UNSIGNED_BYTE,
+	               tex->pixels );
+
+}
+
+void Pre_Render()
+{
+	initGLFW();
+	initGL();
+	initPointSpriteExt();
+}
+
+void Render(float **coord, int num)
+{
+	col color;
+	int width, height;
+
+
+
+
+
+	  // start rendering
+
+	    float maxSize = 0.0f;
+
+	    //------------------------------rendering------------------
+	    //while (!glfwWindowShouldClose(window) && j < it)
+
+	    //{
+
+
+
+
+	        glfwGetFramebufferSize(window, &width, &height); // not important
+
+	        glViewport(0, 0, width, height);  // view settings
+
+	        glLoadIdentity();
+
+	        glMatrixMode( GL_MODELVIEW );
+
+	       // gluPerspective(2, width/height,100, 1000);
+
+	       glScalef(0.05, 0.05, 0.05);
+	        //glEnable(GL_NORMALIZE);
+	        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	        glBindTexture(GL_TEXTURE_2D, m_texStar);
+
+	         glGetFloatv( GL_POINT_SIZE_MAX_ARB, &maxSize );
+	        // glPointParameterfARB(GL_POINT_SIZE_MAX_ARB, maxSize);
+	         //glPointParameterfARB(GL_POINT_SIZE_MIN_ARB, 1.0f);
+	         glTexEnvf(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+
+	         glEnable(GL_POINT_SPRITE_ARB);
+	         glEnable(GL_TEXTURE_2D);       // point sprite texture support
+	         glEnable(GL_BLEND);            // soft blending of point sprites
+	         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+	          // Render a color-cube consisting of 6 quads with different colors
+
+
+
+
+
+	       // glMatrixMode(GL_MODELVIEW);
+	          glBindTexture(GL_TEXTURE_2D, m_texStar);
+
+	          glGetFloatv( GL_POINT_SIZE_MAX_ARB, &maxSize );
+	          //glPointParameterfARB(GL_POINT_SIZE_MAX_ARB, maxSize);
+	          //glPointParameterfARB(GL_POINT_SIZE_MIN_ARB, 1.0f);
+	          glTexEnvf(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+
+	          glEnable(GL_POINT_SPRITE_ARB);
+	          glEnable(GL_TEXTURE_2D);       // point sprite texture support
+	          glEnable(GL_BLEND);            // soft blending of point sprites
+	          glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+
+	          //glLoadIdentity();
+
+	          glPointSize(4); //pStars[i].m_mag*10);
+	            glBegin(GL_POINTS);
+
+
+
+	          for (int i=0; i<num; ++i)
+	          {
+	          glPushMatrix();
+
+	          glTranslatef(coord[0][i],coord[1][i], coord[2][i]);
+
+
+	          color.r=  maxwell(generator);
+	          color.g = maxwell(generator);
+	          color.b = maxwell(generator);
+	            glColor3f(color.r,color.g,color.b);
+	            glVertex3f(coord[0][i], coord[1][i], coord[2][i]);
+
+	            glPopMatrix();
+	          }
+	          glEnd();
+
+
+	          glDisable(GL_POINT_SPRITE_ARB);
+	          glDisable(GL_BLEND);
+	          glDisable(GL_TEXTURE_2D);
+
+	        glfwSwapBuffers(window);
+	        glfwPollEvents();
+	    //}
+
+
+}
+
+void Post_Render()
+{
+	glDeleteTextures(1,&m_texStar);
+	glfwDestroyWindow(window);
+    glfwTerminate();
+}
+
+
+int main(void)
+{
+//col color;
+int j =0;
+Initiate_position();
+
+Pre_Render();
+while ( j<100)
+		{	Render(pos , N);
+
+		j++;
+		}
+
+Post_Render();
+
+	// ----------make opengl window context-----------------------------
+/*
+ initGLFW();
+ initGL();
+ initPointSpriteExt();
+
+ int width, height;
+
+  // start rendering
+
+    float maxSize = 0.0f;
+    int j=0;
+    //------------------------------rendering------------------
+    while (!glfwWindowShouldClose(window) && j < 10000)
+
+    {
+
+
+
+
+        glfwGetFramebufferSize(window, &width, &height); // not important
+
+        glViewport(0, 0, width, height);  // view settings
+
+        glMatrixMode( GL_PROJECTION );
+        glLoadIdentity();
+       // gluPerspective(2, width/height,100, 1000);
+
+        glScalef(0.08, 0.08, 0.08);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glBindTexture(GL_TEXTURE_2D, m_texStar);
+
+         glGetFloatv( GL_POINT_SIZE_MAX_ARB, &maxSize );
+        // glPointParameterfARB(GL_POINT_SIZE_MAX_ARB, maxSize);
+         //glPointParameterfARB(GL_POINT_SIZE_MIN_ARB, 1.0f);
+         glTexEnvf(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+
+         glEnable(GL_POINT_SPRITE_ARB);
+         glEnable(GL_TEXTURE_2D);       // point sprite texture support
+         glEnable(GL_BLEND);            // soft blending of point sprites
+         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+          // Render a color-cube consisting of 6 quads with different colors
+
+
+
+
+
+       // glMatrixMode(GL_MODELVIEW);
+          glBindTexture(GL_TEXTURE_2D, m_texStar);
+
+          glGetFloatv( GL_POINT_SIZE_MAX_ARB, &maxSize );
+          //glPointParameterfARB(GL_POINT_SIZE_MAX_ARB, maxSize);
+          //glPointParameterfARB(GL_POINT_SIZE_MIN_ARB, 1.0f);
+          glTexEnvf(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+
+          glEnable(GL_POINT_SPRITE_ARB);
+          glEnable(GL_TEXTURE_2D);       // point sprite texture support
+          glEnable(GL_BLEND);            // soft blending of point sprites
+          glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+
+          //glLoadIdentity();
+
+          glPointSize(13); //pStars[i].m_mag*10);
+            glBegin(GL_POINTS);
+
+
+
+          for (int i=0; i<N; ++i)
+          {
+          glPushMatrix();
+
+          glTranslatef(pos[0][i],pos[1][i], pos[2][i]);
+
+
+          color.r=  maxwell(generator);
+          	          color.g = maxwell(generator);
+          	          color.b = maxwell(generator);
+            glColor3f(color.r,color.g,color.b);
+            glVertex3f(pos[0][i], pos[1][i], pos[2][i]*0.01);
+
+            glPopMatrix();
+          }
+          glEnd();
+
+
+          glDisable(GL_POINT_SPRITE_ARB);
+          glDisable(GL_BLEND);
+          glDisable(GL_TEXTURE_2D);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+
+
+    glDeleteTextures(1,&m_texStar);
+    glfwDestroyWindow(window);
+    glfwTerminate();
+*/
+
+
+    for(int i =0 ;i <3 ;i++)
+    	delete [] pos[i];
+    exit(EXIT_SUCCESS);
+}

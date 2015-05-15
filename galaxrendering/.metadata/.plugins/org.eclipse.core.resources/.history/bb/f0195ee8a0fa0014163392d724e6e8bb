@@ -1,0 +1,46 @@
+#include "Rendering.h"
+#include <fstream>
+#include <iostream>
+#include <random>
+
+int N;
+std::default_random_engine generator;
+std::normal_distribution<float> maxwell(0.0,1.0);
+
+int main(void)
+{
+	N=40000;
+	
+	std::vector<prop> pos(N);
+
+
+
+	std::ifstream input("test.txt");
+
+
+	int n=0;
+	while(n < N)
+	{
+
+	    input >> pos[n].mass >> pos[n].x >>  pos[n].y >> pos[n].z;
+	    pos[n].xcol = maxwell(generator);
+
+	    pos[n].ycol = maxwell(generator);
+	    pos[n].zcol = maxwell(generator);
+	 n++;
+	 
+	}
+	
+
+	Pre_Render();
+	
+	int j = 0;
+	while(j < 10000)
+		Render(pos, N);
+	
+
+	Post_Render();
+	
+	
+	
+}

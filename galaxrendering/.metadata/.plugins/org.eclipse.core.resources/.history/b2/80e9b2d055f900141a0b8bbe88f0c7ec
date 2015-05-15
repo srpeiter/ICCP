@@ -1,0 +1,141 @@
+//============================================================================
+// Name        : renderingtest.cpp
+// Author      : Sarwan Peiter
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
+//#include <GL/freeglut.h>
+#include <GLFW/glfw3.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <random>
+
+void Initiate_Velocity();
+float *pos[3];
+const int N =20;
+
+using namespace std;
+
+
+
+
+static void error_callback(int error, const char* description)
+{
+    fputs(description, stderr);
+}
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GL_TRUE);
+}
+
+
+struct col {
+	float r;
+	float g;
+	float b;
+};
+
+default_random_engine generator;
+normal_distribution<float> maxwell(0.0,1.0);
+
+void Initiate_position(){
+
+	for(int i =0 ; i < 3; i++)
+		pos[i]= new float[N];
+
+for (int n=0; n<N; ++n){
+pos[0][n] = maxwell(generator);
+pos[1][n] = maxwell(generator);
+pos[2][n] = maxwell(generator);
+}
+}
+
+
+
+int main(void)
+{
+
+	Initiate_position();
+
+
+	// ----------make opengl window context-----------------------------
+    GLFWwindow* window;
+    glfwSetErrorCallback(error_callback);
+    if (!glfwInit())
+        exit(EXIT_FAILURE);
+    window = glfwCreateWindow(640, 480, "Simple example", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+
+    // make current window OPENGL context or else OPENGL will not work
+    glfwMakeContextCurrent(window);
+
+    // time interval at which the render buffer(back buffer) is brought to the front buffer
+    glfwSwapInterval(1);
+
+    //terminate when escape-key is pressed
+    glfwSetKeyCallback(window, key_callback);
+
+    int width, height;
+    col color;
+    // start rendering
+
+    //------------------------------rendering------------------
+    while (!glfwWindowShouldClose(window))
+
+    {
+
+        glfwGetFramebufferSize(window, &width, &height); // not important
+
+        glViewport(0, 0, width, height);  // view settings
+
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        float maxSize = 0.0f;
+          glGetFloatv( GL_POINT_SIZE_MAX_ARB, &maxSize );
+          glPointParameterfARB(GL_POINT_SIZE_MAX_ARB, maxSize);
+          glPointParameterfARB(GL_POINT_SIZE_MIN_ARB, 1.0f);
+          glTexEnvf(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+
+          glEnable(GL_POINT_SPRITE_ARB);
+          glEnable(GL_TEXTURE_2D);       // point sprite texture support
+          glEnable(GL_BLEND);            // soft blending of point sprites
+          glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+
+
+
+
+          glPointSize(4);
+          glBegin(GL_POINTS);
+
+
+          color.r=  1.0;
+          color.g = 1.0;
+          color.b = 1.0;
+          for (int i=0; i<N; ++i)
+          {
+            glColor3f(color.r,color.g,color.b );
+            glVertex3f(pos[0][i], pos[1][i], 0.0f);
+
+          }
+          glEnd();
+
+          glDisable(GL_POINT_SPRITE_ARB);
+          glDisable(GL_BLEND);
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    exit(EXIT_SUCCESS);
+}

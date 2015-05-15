@@ -1,0 +1,37 @@
+16:23:21 **** Incremental Build of configuration Debug for project renderingtest ****
+make all 
+Building file: ../src/renderingtest.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/renderingtest.d" -MT"src/renderingtest.d" -o "src/renderingtest.o" "../src/renderingtest.cpp"
+../src/renderingtest.cpp: In function ‘void Render(std::vector<prop>, int)’:
+../src/renderingtest.cpp:214:8: warning: unused variable ‘r’ [-Wunused-variable]
+  float r = 1;
+        ^
+../src/renderingtest.cpp:215:8: warning: unused variable ‘g’ [-Wunused-variable]
+  float g = 1;
+        ^
+../src/renderingtest.cpp:216:8: warning: unused variable ‘b’ [-Wunused-variable]
+  float b = 1;
+        ^
+Finished building: ../src/renderingtest.cpp
+ 
+Building file: ../src/test.cpp
+Invoking: GCC C++ Compiler
+g++ -std=c++11 -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/test.d" -MT"src/test.d" -o "src/test.o" "../src/test.cpp"
+In file included from ../src/test.cpp:1:0:
+../src/Rendering.h:43:13: warning: ‘void error_callback(int, const char*)’ declared ‘static’ but never defined [-Wunused-function]
+ static void error_callback(int error, const char* description);
+             ^
+../src/Rendering.h:44:13: warning: ‘void key_callback(GLFWwindow*, int, int, int, int)’ declared ‘static’ but never defined [-Wunused-function]
+ static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+             ^
+Finished building: ../src/test.cpp
+ 
+Building target: renderingtest
+Invoking: GCC C++ Linker
+g++ -L/lib/ -o "renderingtest"  ./src/renderingtest.o ./src/test.o   -lglfw -lGLU -lSDL -lGLEW -lGL
+Finished building target: renderingtest
+ 
+
+16:23:23 Build Finished (took 1s.757ms)
+

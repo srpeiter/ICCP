@@ -1,0 +1,149 @@
+//============================================================================
+// Name        : renderingtest.cpp
+// Author      : Sarwan Peiter
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include <GL/glew.h>
+#include <GL/gl.h>
+//#include <GL/freeglut.h>
+#include <GLFW/glfw3.h>
+#include <stdio.h>
+
+using namespace std;
+
+
+#include <GLFW/glfw3.h>
+
+int main(void)
+{
+    GLFWwindow* window;
+
+    /* Initialize the library */
+    if (!glfwInit())
+        return -1;
+
+    /* Create a windowed mode window and its OpenGL context */
+    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        return -1;
+    }
+
+    /* Make the window's context current */
+    glfwMakeContextCurrent(window);
+
+
+
+    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+
+    do{
+        // Draw nothing, see you in tutorial 2 !
+
+		GLenum res = glewInit();
+		if (res != GLEW_OK)
+		{
+		    fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
+		    return 1;
+		}
+/*		struct pos {
+			float x ;
+			float y ;
+			float z ;
+		};
+
+		pos pos1;
+		pos1.x= -1.0; pos1.y= -1.0; pos1.z = 0.0;
+
+		pos pos2;
+		pos2.x= 1.0; pos2.y= -1.0; pos2.z = 0.0;
+
+		pos pos3;
+		pos3.x= 0.0; pos3.y= 1.0; pos3.z = 0.0;
+
+
+		pos Vertices[3] = {pos1, pos2, pos3} ;
+
+
+	    GLuint VBO;
+
+		glGenBuffers(1, &VBO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glDisableVertexAttribArray(0);
+*/
+
+
+		GLuint VertexArrayID;
+		glGenVertexArrays(1, &VertexArrayID);
+		glBindVertexArray(VertexArrayID);
+
+
+		// An array of 3 vectors which represents 3 vertices
+		static const GLfloat g_vertex_buffer_data[] = {
+		   -1.0f, -1.0f, 0.0f,
+		   1.0f, -1.0f, 0.0f,
+		   0.0f,  1.0f, 0.0f,
+		};
+
+
+		// This will identify our vertex buffer
+		GLuint vertexbuffer;
+
+		// Generate 1 buffer, put the resulting identifier in vertexbuffer
+		glGenBuffers(1, &vertexbuffer);
+
+		// The following commands will talk about our 'vertexbuffer' buffer
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+
+		// Give our vertices to OpenGL.
+		glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+
+
+		// 1rst attribute buffer : vertices
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+		glVertexAttribPointer(
+		   0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		   3,                  // size
+		   GL_FLOAT,           // type
+		   GL_FALSE,           // normalized?
+		   0,                  // stride
+		   (void*)0            // array buffer offset
+		);
+
+		// Draw the triangle !
+		glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+
+		glDisableVertexAttribArray(0);
+        // Swap buffers
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+
+    } // Check if the ESC key was pressed or the window was closed
+    while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+    glfwWindowShouldClose(window) == 0 );
+
+
+
+    return 0;
+}
+
+
+
+

@@ -1,0 +1,38 @@
+#include "Rendering.h"
+#include <fstream>
+#include <iostream>
+
+
+int N;
+
+int main(void)
+{
+	
+	std::vector<prop> pos(N);
+	N=40000;
+
+
+	std::ifstream input("test.txt");
+
+
+	int n=0;
+	while(n < N)
+	{
+
+	    input >> pos[n].x >>  pos[n].y >> pos[n].z;
+	 n++;
+	 
+	}
+	
+
+	Pre_Render();
+	
+	int j = 0;
+	while(j < 10000)
+		Render(pos, N);
+	
+	Post_Render();
+	
+	
+	
+}

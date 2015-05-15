@@ -1,0 +1,35 @@
+//============================================================================
+// Name        : renderingtest.cpp
+// Author      : Sarwan Peiter
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/freeglut.h>
+
+using namespace std;
+
+int main(int argc,  char** argv) {
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+
+	glutInitWindowSize(1024, 768);
+	glutInitWindowPosition(100, 100);
+	glutCreateWindow("Tutorial 01");
+
+
+	//glutDisplayFunc(RenderSceneCB);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+	glutMainLoop();
+
+	glClear(GL_COLOR_BUFFER_BIT);
+	glutSwapBuffers();
+
+
+	return 0;
+}

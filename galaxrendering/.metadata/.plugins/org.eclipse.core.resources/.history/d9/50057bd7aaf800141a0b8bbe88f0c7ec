@@ -1,0 +1,28 @@
+//============================================================================
+// Name        : renderingtest.cpp
+// Author      : Sarwan Peiter
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+
+using namespace std;
+
+int main(int argc,  char** argv) {
+
+	 glutInit(&argc, argv);
+	    glutInitWindowSize(640,480);
+	    glutInitWindowPosition(10,10);
+	    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+
+	    glutCreateWindow("Blah");
+
+	    GLenum err = glewInit();
+	    if (err == GLEW_OK) {
+	       glutMainLoop();
+	    }
+
+	return 0;
+}
